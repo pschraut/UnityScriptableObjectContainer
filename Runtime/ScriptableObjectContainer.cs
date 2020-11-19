@@ -8,6 +8,9 @@ using UnityEngine;
 
 namespace Oddworm.Framework
 {
+    public sealed class ScriptableObjectContainerTypeFilterAttribute : System.Attribute
+    { }
+
     [CreateAssetMenu(menuName = "ScriptableObject Container", order = 310)]
     public class ScriptableObjectContainer : ScriptableObject
     {
@@ -32,11 +35,6 @@ namespace Oddworm.Framework
                 if (subobj != null)
                     result.Add(subobj);
             }
-        }
-
-        public virtual void FilterTypes(List<System.Type> types)
-        {
-
         }
 
 #if UNITY_EDITOR

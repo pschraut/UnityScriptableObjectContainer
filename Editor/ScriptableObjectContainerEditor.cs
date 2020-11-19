@@ -30,27 +30,60 @@ namespace Oddworm.EditorFramework
             }
         }
 
-        void ShowScriptableObjectDropdown()
+        void GetScriptableObjectTypes(List<System.Type> result)
         {
-            var menu = new GenericMenu();
-            var list = new List<System.Type>();
-            foreach(var type in TypeCache.GetTypesWithAttribute<CreateAssetMenuAttribute>())
+            foreach (var type in TypeCache.GetTypesWithAttribute<CreateAssetMenuAttribute>())
             {
                 if (!type.IsSubclassOf(typeof(ScriptableObject)))
                     continue;
 
-                if (type == typeof(ScriptableObjectContainer) || type.IsSubclassOf(typeof(ScriptableObjectContainer)))
+                var isContainer = type == typeof(ScriptableObjectContainer);
+                if (type.IsSubclassOf(typeof(ScriptableObjectContainer)))
+                    isContainer = true;
+
+                if (!isContainer)
+                    result.Add(type);
+            }
+        }
+
+        void FilterScriptableObjectTypes(System.Type containerType, List<System.Type> list)
+        {
+            foreach (var method in TypeCache.GetMethodsWithAttribute<ScriptableObjectContainerTypeFilterAttribute>())
+            {
+                if (!method.IsStatic)
+                    continue;
+                if (method.DeclaringType != containerType)
                     continue;
 
-                list.Add(type);
-
+                method.Invoke(null, new[] { list });
             }
+
+            // Remove all non ScriptableObjects that might have been added during the filter process
+            for (var n= list.Count-1; n>=0; --n)
+            {
+                if (list[n] == null)
+                {
+                    list.RemoveAt(n);
+                    continue;
+                }
+
+                if (!list[n].IsSubclassOf(typeof(ScriptableObject)))
+                {
+                    list.RemoveAt(n);
+                    continue;
+                }
+            }
+        }
+
+        void ShowScriptableObjectDropdown()
+        {
+            var menu = new GenericMenu();
+            var list = new List<System.Type>();
+
+            GetScriptableObjectTypes(list);
 
             foreach(var t in targets)
-            {
-                var container = t as ScriptableObjectContainer;
-                container.FilterTypes(list);
-            }
+                FilterScriptableObjectTypes(t.GetType(), list);
 
             foreach (var type in list)
                 menu.AddItem(new GUIContent(type.Name), false, OnClick, type);
@@ -67,19 +100,24 @@ namespace Oddworm.EditorFramework
                     if (parent == null)
                         continue;
 
-                    var so = ScriptableObject.CreateInstance(type);
-                    so.name = type.Name;
-                    Undo.RegisterCreatedObjectUndo(so, "Create");
-
-                    Undo.RecordObject(parent, "Add");
-                    AssetDatabase.AddObjectToAsset(so, parent);
-
-                    ScriptableObjectContainer.Editor.Bake(parent);
+                    CreateSubObject(parent, type);
                 }
 
                 AssetDatabase.SaveAssets();
                 AssetDatabase.Refresh();
             }
+        }
+
+        void CreateSubObject(ScriptableObjectContainer parent, System.Type type)
+        {
+            var so = ScriptableObject.CreateInstance(type);
+            so.name = type.Name;
+            Undo.RegisterCreatedObjectUndo(so, "Create");
+
+            Undo.RecordObject(parent, "Add");
+            AssetDatabase.AddObjectToAsset(so, parent);
+
+            ScriptableObjectContainer.Editor.Bake(parent);
         }
     }
 }
