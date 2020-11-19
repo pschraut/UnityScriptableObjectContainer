@@ -8,12 +8,12 @@ using UnityEngine;
 
 namespace Oddworm.Framework
 {
-    public sealed class ScriptableObjectContainerTypeFilterAttribute : System.Attribute
-    { }
-
     [CreateAssetMenu(menuName = "ScriptableObject Container", order = 310)]
     public class ScriptableObjectContainer : ScriptableObject
     {
+        public sealed class TypeFilterAttribute : System.Attribute
+        { }
+
         [SerializeField] ScriptableObject[] m_SubObjects = new ScriptableObject[0];
 
         public T GetSubObject<T>() where T : ScriptableObject

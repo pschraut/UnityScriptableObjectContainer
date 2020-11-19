@@ -48,7 +48,7 @@ namespace Oddworm.EditorFramework
 
         void FilterScriptableObjectTypes(System.Type containerType, List<System.Type> list)
         {
-            foreach (var method in TypeCache.GetMethodsWithAttribute<ScriptableObjectContainerTypeFilterAttribute>())
+            foreach (var method in TypeCache.GetMethodsWithAttribute<ScriptableObjectContainer.TypeFilterAttribute>())
             {
                 if (!method.IsStatic)
                     continue;
