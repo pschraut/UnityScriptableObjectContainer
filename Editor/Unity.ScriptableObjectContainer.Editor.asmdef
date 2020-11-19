@@ -1,0 +1,17 @@
+{
+    "name": "Unity.ScriptableObjectContainer.Editor",
+    "references": [
+        "GUID:f60f765a85ae24643aff9de06832a458"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
