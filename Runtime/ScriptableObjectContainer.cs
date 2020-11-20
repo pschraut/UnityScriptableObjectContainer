@@ -8,12 +8,22 @@ using UnityEngine;
 
 namespace Oddworm.Framework
 {
+    public class CreateSubAssetMenuAttribute : System.Attribute
+    {
+        public string menuName
+        {
+            get;
+            set;
+        }
+    }
+
     [CreateAssetMenu(menuName = "ScriptableObject Container", order = 310)]
     public class ScriptableObjectContainer : ScriptableObject
     {
         public sealed class TypeFilterAttribute : System.Attribute
         { }
 
+        [HideInInspector]
         [SerializeField] ScriptableObject[] m_SubObjects = new ScriptableObject[0];
 
         public T GetSubObject<T>() where T : ScriptableObject
@@ -40,30 +50,38 @@ namespace Oddworm.Framework
 #if UNITY_EDITOR
         void EditorBake()
         {
+            var objs = new List<ScriptableObject>();
+
+            // load all objects in the container asset
             var assetPath = UnityEditor.AssetDatabase.GetAssetPath(this);
-            var objs = new List<Object>(UnityEditor.AssetDatabase.LoadAllAssetsAtPath(assetPath));
-            for (var n= objs.Count-1; n>=0; --n)
+            foreach(var obj in UnityEditor.AssetDatabase.LoadAllAssetsAtPath(assetPath))
             {
-                var obj = objs[n];
-
-                if (obj is ScriptableObjectContainer)
-                {
-                    objs.RemoveAt(n);
-                    continue;
-                }
-
                 if (!(obj is ScriptableObject))
-                {
-                    objs.RemoveAt(n);
                     continue;
-                }
+                if (obj is ScriptableObjectContainer)
+                    continue;
+
+                objs.Add(obj as ScriptableObject);
             }
 
-            m_SubObjects = new ScriptableObject[objs.Count];
-            for(var n=0; n< objs.Count; ++n)
+            var temp = new List<ScriptableObject>(m_SubObjects);
+
+            // add all objects that are currently not in the m_SubObjects array
+            foreach (var so in objs)
             {
-                m_SubObjects[n] = objs[n] as ScriptableObject;
+                if (temp.IndexOf(so) == -1)
+                    temp.Add(so);
             }
+
+            // remove all objects that in the m_SubObjects array, but not in the asset anymore
+            for (var n = temp.Count - 1; n >= 0; --n)
+            {
+                if (objs.IndexOf(temp[n]) == -1)
+                    temp.RemoveAt(n);
+            }
+
+            // and we have our new array
+            m_SubObjects = temp.ToArray();
         }
 #endif
 
