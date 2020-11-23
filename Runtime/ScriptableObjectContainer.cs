@@ -8,15 +8,6 @@ using UnityEngine;
 
 namespace Oddworm.Framework
 {
-    public class CreateSubAssetMenuAttribute : System.Attribute
-    {
-        public string menuName
-        {
-            get;
-            set;
-        }
-    }
-
     [CreateAssetMenu(menuName = "ScriptableObject Container", order = 310)]
     public class ScriptableObjectContainer : ScriptableObject
     {
