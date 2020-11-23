@@ -20,7 +20,7 @@ namespace Oddworm.Framework
     [CreateAssetMenu(menuName = "ScriptableObject Container", order = 310)]
     public class ScriptableObjectContainer : ScriptableObject
     {
-        public sealed class TypeFilterAttribute : System.Attribute
+        public sealed class FilterTypesMethodAttribute : System.Attribute
         { }
 
         [HideInInspector]
