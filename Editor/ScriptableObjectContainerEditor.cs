@@ -79,20 +79,26 @@ namespace Oddworm.EditorFramework
             for (var n=0; n< subObjectsProperty.arraySize; ++n)
             {
                 var subObjProperty = subObjectsProperty.GetArrayElementAtIndex(n);
-                if (subObjProperty.objectReferenceValue == null)
+
+                var subObject = subObjProperty.objectReferenceValue;
+                if (subObject == null)
                 {
                     EditorGUILayout.HelpBox("The associated script could not be loaded.\nPlease fix any compile errors and assign a valid script.", MessageType.Warning);
                     EditorGUILayout.Separator();
                     continue;
                 }
+
                 if (subObjProperty.hasMultipleDifferentValues)
                     continue;
 
-                subObjProperty.isExpanded = DrawTitlebar(subObjProperty.objectReferenceValue, subObjProperty.isExpanded);
+                if ((subObject.hideFlags & HideFlags.HideInInspector) != 0)
+                    continue;
+
+                subObjProperty.isExpanded = DrawTitlebar(subObject, subObjProperty.isExpanded);
                 if (!subObjProperty.isExpanded)
                     continue;
 
-                var editor = GetOrCreateEditor(subObjProperty.objectReferenceValue);
+                var editor = GetOrCreateEditor(subObject);
                 editor.OnInspectorGUI();
                 EditorGUILayout.Separator();
             }
