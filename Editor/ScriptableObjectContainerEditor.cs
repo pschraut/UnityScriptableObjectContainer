@@ -13,13 +13,10 @@ namespace Oddworm.EditorFramework
     [CustomEditor(typeof(ScriptableObjectContainer), editorForChildClasses: true, isFallback = false)]
     public class ScriptableObjectContainerEditor : Editor
     {
-        SerializedProperty m_SubObjects;
-
         List<Editor> m_Editors = new List<Editor>();
 
         void OnEnable()
         {
-            m_SubObjects = serializedObject.FindProperty("m_SubObjects");
         }
 
         void OnDisable()
@@ -45,15 +42,53 @@ namespace Oddworm.EditorFramework
             return editor;
         }
 
+        void DestroyUnusedEditors(SerializedProperty subObjectsProperty)
+        {
+            for (var j = m_Editors.Count - 1; j >= 0; --j)
+            {
+                var isUsed = false;
+                for (var n = 0; n < subObjectsProperty.arraySize; ++n)
+                {
+                    var subObjProperty = subObjectsProperty.GetArrayElementAtIndex(n);
+                    if (subObjProperty.objectReferenceValue != null && m_Editors[j].target == subObjProperty.objectReferenceValue)
+                    {
+                        isUsed = true;
+                        break;
+                    }
+                }
+
+                if (!isUsed)
+                {
+                    Editor.DestroyImmediate(m_Editors[j]);
+                    m_Editors.RemoveAt(j);
+                }
+            }
+        }
+
         public override void OnInspectorGUI()
         {
             base.OnInspectorGUI();
             EditorGUILayout.Separator();
 
-            for (var n=0; n< m_SubObjects.arraySize; ++n)
+            serializedObject.Update();
+            var subObjectsProperty = serializedObject.FindProperty("m_SubObjects");
+
+            DestroyUnusedEditors(subObjectsProperty);
+
+
+            for (var n=0; n< subObjectsProperty.arraySize; ++n)
             {
-                var subObjProperty = m_SubObjects.GetArrayElementAtIndex(n);
-                subObjProperty.isExpanded = DrawTitlebar(new[] { subObjProperty.objectReferenceValue }, subObjProperty.isExpanded);
+                var subObjProperty = subObjectsProperty.GetArrayElementAtIndex(n);
+                if (subObjProperty.objectReferenceValue == null)
+                {
+                    EditorGUILayout.HelpBox("The associated script could not be loaded.\nPlease fix any compile errors and assign a valid script.", MessageType.Warning);
+                    EditorGUILayout.Separator();
+                    continue;
+                }
+                if (subObjProperty.hasMultipleDifferentValues)
+                    continue;
+
+                subObjProperty.isExpanded = DrawTitlebar(subObjProperty.objectReferenceValue, subObjProperty.isExpanded);
                 if (!subObjProperty.isExpanded)
                     continue;
 
@@ -63,18 +98,46 @@ namespace Oddworm.EditorFramework
             }
 
             EditorGUILayout.Separator();
+            serializedObject.ApplyModifiedProperties();
+
+
             if (GUILayout.Button("Add"))
             {
                 ShowScriptableObjectDropdown();
             }
         }
 
-        bool DrawTitlebar(Object[] objs, bool foldout)
+        bool DrawTitlebar(Object subObject, bool foldout)
         {
-            var r = GUILayoutUtility.GetRect(10, 24, GUILayout.ExpandWidth(true));
-            r.x -= 18; r.width += 22; // for some reason the titlebar doesn't cover the full width, so we expand the rect outself
+            var titlebarRect = GUILayoutUtility.GetRect(10, 24, GUILayout.ExpandWidth(true));
+            titlebarRect.x -= 18; titlebarRect.width += 22; // for some reason the titlebar doesn't cover the full width, so we expand the rect outself
 
-            return EditorGUI.InspectorTitlebar(r, foldout, objs, true);
+            var buttonRect = titlebarRect;
+            buttonRect.x += titlebarRect.width - 80;
+            buttonRect.width = 20;
+            buttonRect.y += 3;
+
+            // Handle "button" input befpre EditorGUI.InspectorTitlebar, otherwise the titlebar swallows the input
+            var e = Event.current;
+            if (buttonRect.Contains(e.mousePosition) && e.type == EventType.MouseDown && e.button == 0)
+            {
+                e.Use();
+
+                var menu = new GenericMenu();
+                menu.AddItem(new GUIContent("Delete"), false, delegate(object o)
+                {
+                    DeleteSubObject((Object)o);
+                }, subObject);
+                menu.ShowAsContext();
+            }
+
+            // Draw the titlebar
+            var value = EditorGUI.InspectorTitlebar(titlebarRect, foldout, subObject, true);
+
+            // Draw the button, only for its visual appearance
+            GUI.Button(buttonRect, EditorGUIUtility.IconContent("d__Popup"), "IconButton");
+
+            return value;
         }
 
         void GetScriptableObjectTypes(List<System.Type> result)
@@ -149,14 +212,15 @@ namespace Oddworm.EditorFramework
 
                     CreateSubObject(parent, type);
                 }
-
-                AssetDatabase.SaveAssets();
-                AssetDatabase.Refresh();
             }
         }
 
         void CreateSubObject(ScriptableObjectContainer parent, System.Type type)
         {
+            if (parent == null)
+                return;
+
+            Undo.IncrementCurrentGroup();
             var so = ScriptableObject.CreateInstance(type);
             so.name = type.Name;
             Undo.RegisterCreatedObjectUndo(so, "Create");
@@ -167,10 +231,28 @@ namespace Oddworm.EditorFramework
                 serProp.objectReferenceValue = parent;
             serObj.ApplyModifiedPropertiesWithoutUndo();
 
-            Undo.RecordObject(parent, "Add");
+            Undo.RegisterCompleteObjectUndo(parent, "Create");
             AssetDatabase.AddObjectToAsset(so, parent);
-
             ScriptableObjectContainer.Editor.Bake(parent);
+            Undo.FlushUndoRecordObjects();
+            EditorUtility.SetDirty(parent);
+        }
+
+        static void DeleteSubObject(Object subObject)
+        {
+            if (subObject == null)
+                return;
+
+            var parent = AssetDatabase.LoadMainAssetAtPath(AssetDatabase.GetAssetPath(subObject)) as ScriptableObjectContainer;
+            if (parent == null)
+                return;
+
+            Undo.IncrementCurrentGroup();
+            Undo.RegisterCompleteObjectUndo(parent, "Delete");
+            Undo.DestroyObjectImmediate(subObject);
+            ScriptableObjectContainer.Editor.Bake(parent);
+            Undo.FlushUndoRecordObjects();
+            EditorUtility.SetDirty(parent);
         }
     }
 }
