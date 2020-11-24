@@ -29,6 +29,16 @@ namespace Oddworm.EditorFramework
             m_Editors.Clear();
         }
 
+        protected override bool ShouldHideOpenButton()
+        {
+            return true;
+        }
+
+        public override bool UseDefaultMargins()
+        {
+            return false;
+        }
+
         Editor GetOrCreateEditor(Object t)
         {
             for (var n=0; n< m_Editors.Count; ++n)
@@ -67,7 +77,10 @@ namespace Oddworm.EditorFramework
 
         public override void OnInspectorGUI()
         {
+            EditorGUILayout.Separator();
+            EditorGUI.indentLevel++;
             base.OnInspectorGUI();
+            EditorGUI.indentLevel--;
             EditorGUILayout.Separator();
 
             serializedObject.Update();
@@ -99,7 +112,9 @@ namespace Oddworm.EditorFramework
                     continue;
 
                 var editor = GetOrCreateEditor(subObject);
+                EditorGUI.indentLevel++;
                 editor.OnInspectorGUI();
+                EditorGUI.indentLevel--;
                 EditorGUILayout.Separator();
             }
 
@@ -120,7 +135,7 @@ namespace Oddworm.EditorFramework
         bool DrawTitlebar(Object subObject, bool foldout)
         {
             var titlebarRect = GUILayoutUtility.GetRect(10, 24, GUILayout.ExpandWidth(true));
-            titlebarRect.x -= 18; titlebarRect.width += 22; // for some reason the titlebar doesn't cover the full width, so we expand the rect outself
+            //titlebarRect.x -= 18; titlebarRect.width += 22; // for some reason the titlebar doesn't cover the full width, so we expand the rect outself
 
             var buttonRect = titlebarRect;
             buttonRect.x += titlebarRect.width - 80;
