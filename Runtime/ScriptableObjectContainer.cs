@@ -17,9 +17,15 @@ namespace Oddworm.Framework
         [HideInInspector]
         [SerializeField] ScriptableObject[] m_SubObjects = new ScriptableObject[0];
 
+        public ScriptableObject[] subObjects
+        {
+            [System.Diagnostics.DebuggerStepThrough]
+            get { return m_SubObjects; }
+        }
+
         public T GetSubObject<T>() where T : ScriptableObject
         {
-            for (var n=0; n< m_SubObjects.Length; ++n)
+            for (var n = 0; n < m_SubObjects.Length; ++n)
             {
                 var subobj = m_SubObjects[n] as T;
                 if (subobj != null)
@@ -45,7 +51,7 @@ namespace Oddworm.Framework
 
             // load all objects in the container asset
             var assetPath = UnityEditor.AssetDatabase.GetAssetPath(this);
-            foreach(var obj in UnityEditor.AssetDatabase.LoadAllAssetsAtPath(assetPath))
+            foreach (var obj in UnityEditor.AssetDatabase.LoadAllAssetsAtPath(assetPath))
             {
                 if (!(obj is ScriptableObject))
                     continue;
