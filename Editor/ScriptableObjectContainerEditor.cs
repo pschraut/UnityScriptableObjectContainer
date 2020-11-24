@@ -153,6 +153,15 @@ namespace Oddworm.EditorFramework
                 {
                     DeleteSubObject((Object)o);
                 }, subObject);
+
+                menu.AddSeparator("");
+
+                menu.AddItem(new GUIContent("Rename"), false, delegate (object o)
+                {
+                    var wnd = EditorWindow.GetWindow<RenameDialog>();
+                    wnd.Show((Object)o);
+                }, subObject);
+
                 menu.ShowAsContext();
             }
 
