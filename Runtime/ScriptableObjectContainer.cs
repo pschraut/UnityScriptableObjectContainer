@@ -78,10 +78,10 @@ namespace Oddworm.Framework
         /// Gets all sub-objects of the specified type.
         /// </summary>
         /// <typeparam name="T">The type of sub-object to retrieve. The type must derive from ScriptableObject or must be an interface.</typeparam>
-        /// <param name="result">The list where all sub-objects are added to.</param>
+        /// <param name="results">The list where all sub-objects are added to.</param>
         /// <exception cref="System.ArgumentNullException">Throws an ArgumentNullException if the specified type is null.</exception>
         /// <exception cref="System.ArgumentException">Throws an ArgumentException if the specified type does not derive from ScriptableObject or isn't an interface.</exception>
-        public void GetSubObjects<T>(List<T> result) where T : class
+        public void GetSubObjects<T>(List<T> results) where T : class
         {
             ThrowIfInvalidType(typeof(T), nameof(GetSubObjects));
 
@@ -89,7 +89,7 @@ namespace Oddworm.Framework
             {
                 var subobj = m_SubObjects[n] as T;
                 if (subobj != null)
-                    result.Add(subobj);
+                    results.Add(subobj);
             }
         }
 
@@ -97,10 +97,10 @@ namespace Oddworm.Framework
         /// Gets all sub-objects of the specified type.
         /// </summary>
         /// <param name="type">The type of sub-object to retrieve. The type must derive from ScriptableObject or must be an interface.</param>
-        /// <param name="result">The list where all sub-objects are added to.</param>
+        /// <param name="results">The list where all sub-objects are added to.</param>
         /// <exception cref="System.ArgumentNullException">Throws an ArgumentNullException if the specified type is null.</exception>
         /// <exception cref="System.ArgumentException">Throws an ArgumentException if the specified type does not derive from ScriptableObject or isn't an interface.</exception>
-        public void GetSubObjects(List<ScriptableObject> result, System.Type type)
+        public void GetSubObjects(List<ScriptableObject> results, System.Type type)
         {
             ThrowIfInvalidType(type, nameof(GetSubObjects));
 
@@ -112,7 +112,7 @@ namespace Oddworm.Framework
 
                 var subObjectType = subObject.GetType();
                 if (subObjectType == type || subObjectType.IsSubclassOf(type))
-                    result.Add(subObject);
+                    results.Add(subObject);
             }
         }
 

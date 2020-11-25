@@ -9,9 +9,9 @@ On the scripting side, you get a ScriptableObject from the ```ScriptableObjectCo
 | ScriptableObjectContainer  |     GameObject      |
 |----------|---------------|
 | ```ScriptableObject GetSubObject(Type type)``` | ```Component GetComponent(Type type)``` |
-| ```void GetSubObjects(Type type)``` | ```void GetComponents(Type type, List<T> result)``` |
+| ```void GetSubObjects(Type type, List<T> results)``` | ```void GetComponents(Type type, List<T> results)``` |
 | ```T GetSubObject<T>()``` | ```T GetComponent<T>``` |
-| ```void GetSubObjects<T>(List<T> result)``` | ```void GetComponents(List<T> result)``` |
+| ```void GetSubObjects<T>(List<T> results)``` | ```void GetComponents(List<T> results)``` |
 
 # Installation
 
