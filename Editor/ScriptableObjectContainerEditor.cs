@@ -46,6 +46,140 @@ namespace Oddworm.EditorFramework
             return false;
         }
 
+        public override void OnInspectorGUI()
+        {
+            serializedObject.UpdateIfRequiredOrScript();
+
+            EditorGUILayout.Separator();
+
+            EditorGUI.indentLevel++;
+            DrawContainerGUI();
+            EditorGUI.indentLevel--;
+
+            EditorGUILayout.Separator();
+
+            DrawSubObjectsGUI();
+
+            EditorGUILayout.Separator();
+
+            if (serializedObject.hasModifiedProperties)
+                serializedObject.ApplyModifiedProperties();
+
+            DrawAddSubObjectButton();
+        }
+
+        /// <summary>
+        /// Override this method to draw custom GUI for the ScriptableObjectContainer itself.
+        /// </summary>
+        protected virtual void DrawContainerGUI()
+        {
+            base.OnInspectorGUI();
+        }
+
+        protected bool DrawSubObjectGUI(ScriptableObject subObject, bool isExpanded)
+        {
+            if (subObject == null)
+            {
+                isExpanded = DrawSubObjectTitlebar(m_MissingScriptObject, isExpanded);
+                if (isExpanded)
+                {
+                    EditorGUI.indentLevel++;
+                    EditorGUILayout.HelpBox("The associated script could not be loaded.\nPlease fix any compile errors and assign a valid script.", MessageType.Warning);
+                    EditorGUI.indentLevel--;
+                    EditorGUILayout.Separator();
+                }
+            }
+            else
+            {
+                if ((subObject.hideFlags & HideFlags.HideInInspector) == 0)
+                {
+                    isExpanded = DrawSubObjectTitlebar(subObject, isExpanded);
+                    if (isExpanded)
+                    {
+                        var editor = GetOrCreateEditor(subObject);
+                        EditorGUI.indentLevel++;
+                        editor.OnInspectorGUI();
+                        EditorGUI.indentLevel--;
+                        EditorGUILayout.Separator();
+                    }
+                }
+            }
+
+            return isExpanded;
+        }
+
+        protected void DrawSubObjectsGUI()
+        {
+            var subObjectsProperty = EditorScriptableObjectContainerUtility.FindSubObjectsProperty(serializedObject);
+
+            DestroyUnusedEditors(subObjectsProperty);
+
+            for (var n = 0; n < subObjectsProperty.arraySize; ++n)
+            {
+                var subObjProperty = subObjectsProperty.GetArrayElementAtIndex(n);
+                if (subObjProperty.hasMultipleDifferentValues)
+                    continue;
+
+                var subObject = (ScriptableObject)subObjProperty.objectReferenceValue;
+                subObjProperty.isExpanded = DrawSubObjectGUI(subObject, subObjProperty.isExpanded);
+            }
+        }
+
+        protected void DrawAddSubObjectButton()
+        {
+            using (new EditorGUILayout.HorizontalScope())
+            {
+                GUILayout.FlexibleSpace();
+                if (GUILayout.Button("Add Object", "AC Button", GUILayout.Width(250)))
+                {
+                    ShowAddSubObjectPopup();
+                }
+                GUILayout.FlexibleSpace();
+            }
+        }
+
+        protected bool DrawSubObjectTitlebar(Object subObject, bool foldout)
+        {
+            var isMissing = m_MissingScriptObject == subObject;
+            var titlebarRect = GUILayoutUtility.GetRect(10, 24, GUILayout.ExpandWidth(true));
+
+            var buttonRect = titlebarRect;
+            buttonRect.x += titlebarRect.width - 80;
+            buttonRect.width = 20;
+            buttonRect.y += 3;
+
+            // Handle "button" input befpre EditorGUI.InspectorTitlebar, otherwise the titlebar swallows the input
+            var e = Event.current;
+            if (!isMissing && buttonRect.Contains(e.mousePosition) && e.type == EventType.MouseDown && e.button == 0)
+            {
+                e.Use();
+
+                var menu = new GenericMenu();
+                menu.AddItem(new GUIContent("Remove Object"), false, delegate (object o)
+                {
+                    RemoveSubObject((ScriptableObject)o);
+                }, subObject);
+
+                menu.AddSeparator("");
+
+                menu.AddItem(new GUIContent("Rename Object"), false, delegate (object o)
+                {
+                    var wnd = EditorWindow.GetWindow<RenameDialog>();
+                    wnd.Show((Object)o);
+                }, subObject);
+
+                menu.ShowAsContext();
+            }
+
+            var value = EditorGUI.InspectorTitlebar(titlebarRect, foldout, subObject, true);
+
+            // Draw the button, this is only for its visual appearance
+            if (!isMissing)
+                GUI.Button(buttonRect, EditorGUIUtility.IconContent("d__Popup"), "IconButton");
+
+            return value;
+        }
+
         Editor GetOrCreateEditor(Object t)
         {
             for (var n = 0; n < m_Editors.Count; ++n)
@@ -82,119 +216,13 @@ namespace Oddworm.EditorFramework
             }
         }
 
-        public override void OnInspectorGUI()
-        {
-            EditorGUILayout.Separator();
-            EditorGUI.indentLevel++;
-            base.OnInspectorGUI();
-            EditorGUI.indentLevel--;
-            EditorGUILayout.Separator();
-
-            serializedObject.Update();
-            var subObjectsProperty = EditorScriptableObjectContainerUtility.FindSubObjectsProperty(serializedObject);
-
-            DestroyUnusedEditors(subObjectsProperty);
-
-
-            for (var n = 0; n < subObjectsProperty.arraySize; ++n)
-            {
-                var subObjProperty = subObjectsProperty.GetArrayElementAtIndex(n);
-
-                var subObject = subObjProperty.objectReferenceValue;
-                if (subObject == null)
-                {
-                    subObjProperty.isExpanded = DrawTitlebar(m_MissingScriptObject, subObjProperty.isExpanded);
-                    if (subObjProperty.isExpanded)
-                    {
-                        EditorGUI.indentLevel++;
-                        EditorGUILayout.HelpBox("The associated script could not be loaded.\nPlease fix any compile errors and assign a valid script.", MessageType.Warning);
-                        EditorGUI.indentLevel--;
-                        EditorGUILayout.Separator();
-                    }
-                    continue;
-                }
-
-                if (subObjProperty.hasMultipleDifferentValues)
-                    continue;
-
-                if ((subObject.hideFlags & HideFlags.HideInInspector) != 0)
-                    continue;
-
-                subObjProperty.isExpanded = DrawTitlebar(subObject, subObjProperty.isExpanded);
-                if (!subObjProperty.isExpanded)
-                    continue;
-
-                var editor = GetOrCreateEditor(subObject);
-                EditorGUI.indentLevel++;
-                editor.OnInspectorGUI();
-                EditorGUI.indentLevel--;
-                EditorGUILayout.Separator();
-            }
-
-            EditorGUILayout.Separator();
-            serializedObject.ApplyModifiedProperties();
-
-            using (new EditorGUILayout.HorizontalScope())
-            {
-                GUILayout.FlexibleSpace();
-                if (GUILayout.Button("Add Object", "AC Button", GUILayout.Width(250)))
-                {
-                    ShowScriptableObjectDropdown();
-                }
-                GUILayout.FlexibleSpace();
-            }
-        }
-
-        bool DrawTitlebar(Object subObject, bool foldout)
-        {
-            var isMissing = m_MissingScriptObject == subObject;
-            var titlebarRect = GUILayoutUtility.GetRect(10, 24, GUILayout.ExpandWidth(true));
-
-            var buttonRect = titlebarRect;
-            buttonRect.x += titlebarRect.width - 80;
-            buttonRect.width = 20;
-            buttonRect.y += 3;
-
-            // Handle "button" input befpre EditorGUI.InspectorTitlebar, otherwise the titlebar swallows the input
-            var e = Event.current;
-            if (!isMissing && buttonRect.Contains(e.mousePosition) && e.type == EventType.MouseDown && e.button == 0)
-            {
-                e.Use();
-
-                var menu = new GenericMenu();
-                menu.AddItem(new GUIContent("Remove Object"), false, delegate (object o)
-                {
-                    DeleteSubObject((ScriptableObject)o);
-                }, subObject);
-
-                menu.AddSeparator("");
-
-                menu.AddItem(new GUIContent("Rename Object"), false, delegate (object o)
-                {
-                    var wnd = EditorWindow.GetWindow<RenameDialog>();
-                    wnd.Show((Object)o);
-                }, subObject);
-
-                menu.ShowAsContext();
-            }
-
-            // Draw the titlebar
-            var value = EditorGUI.InspectorTitlebar(titlebarRect, foldout, subObject, true);
-
-            // Draw the button, only for its visual appearance
-            if (!isMissing)
-                GUI.Button(buttonRect, EditorGUIUtility.IconContent("d__Popup"), "IconButton");
-
-            return value;
-        }
-
         class PopupMenuItem
         {
             public string title;
             public System.Type type;
         }
 
-        void ShowScriptableObjectDropdown()
+        protected void ShowAddSubObjectPopup()
         {
             var typeList = new List<System.Type>();
             var itemList = new List<PopupMenuItem>();
@@ -290,7 +318,7 @@ namespace Oddworm.EditorFramework
             }
         }
 
-        void CreateSubObject(ScriptableObjectContainer parent, System.Type type)
+        protected void CreateSubObject(ScriptableObjectContainer parent, System.Type type)
         {
             if (parent == null)
                 return;
@@ -312,7 +340,7 @@ namespace Oddworm.EditorFramework
             EditorUtility.SetDirty(parent);
         }
 
-        static void DeleteSubObject(ScriptableObject subObject)
+        protected void RemoveSubObject(ScriptableObject subObject)
         {
             if (subObject == null)
                 return;
