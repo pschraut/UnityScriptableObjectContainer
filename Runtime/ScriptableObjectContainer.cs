@@ -4,7 +4,6 @@
 //
 #pragma warning disable IDE0019 // Use pattern matching
 #pragma warning disable IDE1006 // Naming Styles
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -13,11 +12,12 @@ namespace Oddworm.Framework
     [CreateAssetMenu(menuName = "ScriptableObject Container", order = 310)]
     public class ScriptableObjectContainer : ScriptableObject
     {
-        public sealed class FilterTypesMethodAttribute : System.Attribute
-        { }
-
+        [Tooltip("The array holds references to the added sub-objects.")]
         [HideInInspector]
         [SerializeField] ScriptableObject[] m_SubObjects = new ScriptableObject[0];
+
+        public sealed class FilterTypesMethodAttribute : System.Attribute
+        { }
 
         /// <summary>
         /// Gets a reference to the internal array that contains the sub-objects.
@@ -133,53 +133,5 @@ namespace Oddworm.Framework
             if (!isValidType)
                 throw new System.ArgumentException($"{methodName} requires that the requested component '{type.Name}' derives from {nameof(ScriptableObject)} or is an interface.");
         }
-
-#if UNITY_EDITOR
-        void EditorBake()
-        {
-            var objs = new List<ScriptableObject>();
-
-            // load all objects in the container asset
-            var assetPath = UnityEditor.AssetDatabase.GetAssetPath(this);
-            foreach (var obj in UnityEditor.AssetDatabase.LoadAllAssetsAtPath(assetPath))
-            {
-                if (!(obj is ScriptableObject))
-                    continue;
-                if (obj is ScriptableObjectContainer)
-                    continue;
-
-                objs.Add(obj as ScriptableObject);
-            }
-
-            var temp = new List<ScriptableObject>(m_SubObjects);
-
-            // add all objects that are currently not in the m_SubObjects array
-            foreach (var so in objs)
-            {
-                if (temp.IndexOf(so) == -1)
-                    temp.Add(so);
-            }
-
-            // remove all objects that in the m_SubObjects array, but not in the asset anymore
-            for (var n = temp.Count - 1; n >= 0; --n)
-            {
-                if (objs.IndexOf(temp[n]) == -1)
-                    temp.RemoveAt(n);
-            }
-
-            // and we have our new array
-            m_SubObjects = temp.ToArray();
-        }
-#endif
-
-#if UNITY_EDITOR
-        public static class Editor
-        {
-            public static void Bake(ScriptableObjectContainer container)
-            {
-                container.EditorBake();
-            }
-        }
-#endif
     }
 }
