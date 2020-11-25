@@ -14,13 +14,20 @@ namespace Oddworm.EditorFramework
     public class ScriptableObjectContainerEditor : Editor
     {
         List<Editor> m_Editors = new List<Editor>();
+        Script m_MissingScriptObject = default; // If a sub-object is null, use the m_MissingScriptObject as object to draw the titlebar
+
+        class Script : ScriptableObject { }
 
         protected virtual void OnEnable()
         {
+            m_MissingScriptObject = ScriptableObject.CreateInstance<Script>();
         }
 
         protected virtual void OnDisable()
         {
+            DestroyImmediate(m_MissingScriptObject);
+            m_MissingScriptObject = null;
+
             for (var n = 0; n < m_Editors.Count; ++n)
             {
                 Editor.DestroyImmediate(m_Editors[n]);
@@ -96,8 +103,14 @@ namespace Oddworm.EditorFramework
                 var subObject = subObjProperty.objectReferenceValue;
                 if (subObject == null)
                 {
-                    EditorGUILayout.HelpBox("The associated script could not be loaded.\nPlease fix any compile errors and assign a valid script.", MessageType.Warning);
-                    EditorGUILayout.Separator();
+                    subObjProperty.isExpanded = DrawTitlebar(m_MissingScriptObject, subObjProperty.isExpanded);
+                    if (subObjProperty.isExpanded)
+                    {
+                        EditorGUI.indentLevel++;
+                        EditorGUILayout.HelpBox("The associated script could not be loaded.\nPlease fix any compile errors and assign a valid script.", MessageType.Warning);
+                        EditorGUI.indentLevel--;
+                        EditorGUILayout.Separator();
+                    }
                     continue;
                 }
 
@@ -134,6 +147,7 @@ namespace Oddworm.EditorFramework
 
         bool DrawTitlebar(Object subObject, bool foldout)
         {
+            var isMissing = m_MissingScriptObject == subObject;
             var titlebarRect = GUILayoutUtility.GetRect(10, 24, GUILayout.ExpandWidth(true));
 
             var buttonRect = titlebarRect;
@@ -143,7 +157,7 @@ namespace Oddworm.EditorFramework
 
             // Handle "button" input befpre EditorGUI.InspectorTitlebar, otherwise the titlebar swallows the input
             var e = Event.current;
-            if (buttonRect.Contains(e.mousePosition) && e.type == EventType.MouseDown && e.button == 0)
+            if (!isMissing && buttonRect.Contains(e.mousePosition) && e.type == EventType.MouseDown && e.button == 0)
             {
                 e.Use();
 
@@ -168,7 +182,8 @@ namespace Oddworm.EditorFramework
             var value = EditorGUI.InspectorTitlebar(titlebarRect, foldout, subObject, true);
 
             // Draw the button, only for its visual appearance
-            GUI.Button(buttonRect, EditorGUIUtility.IconContent("d__Popup"), "IconButton");
+            if (!isMissing)
+                GUI.Button(buttonRect, EditorGUIUtility.IconContent("d__Popup"), "IconButton");
 
             return value;
         }
