@@ -41,9 +41,15 @@ namespace Oddworm.Framework
 
             for (var n = 0; n < m_SubObjects.Length; ++n)
             {
-                if (m_SubObjects[n] != null && m_SubObjects[n].GetType() == type)
-                    return m_SubObjects[n];
+                var subObject = m_SubObjects[n];
+                if (subObject == null)
+                    continue;
+
+                var subObjectType = subObject.GetType();
+                if (subObjectType == type || subObjectType.IsSubclassOf(type))
+                    return subObject;
             }
+
             return null;
         }
 
@@ -64,6 +70,7 @@ namespace Oddworm.Framework
                 if (subobj != null)
                     return subobj;
             }
+
             return null;
         }
 
@@ -99,8 +106,13 @@ namespace Oddworm.Framework
 
             for (var n = 0; n < m_SubObjects.Length; ++n)
             {
-                if (m_SubObjects[n] != null && m_SubObjects[n].GetType() == type)
-                    result.Add(m_SubObjects[n]);
+                var subObject = m_SubObjects[n];
+                if (subObject == null)
+                    continue;
+
+                var subObjectType = subObject.GetType();
+                if (subObjectType == type || subObjectType.IsSubclassOf(type))
+                    result.Add(subObject);
             }
         }
 
@@ -114,7 +126,7 @@ namespace Oddworm.Framework
             if (type == null)
                 throw new System.ArgumentNullException($"Type must not be null.");
 
-            var isValidType = type.IsSubclassOf(typeof(ScriptableObject));
+            var isValidType = type.IsSubclassOf(typeof(ScriptableObject)) || type == typeof(ScriptableObject);
             if (type.IsInterface)
                 isValidType = true;
 
