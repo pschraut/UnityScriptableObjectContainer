@@ -17,6 +17,13 @@ In Unity's Package Manager, choose "Add package from git URL" and insert one of 
 |----------|---------------|
 | 1.0.0 | https://github.com/pschraut/UnityScriptableObjectContainer.git#1.0.0 |
 
+# Credits
+
+If this package is useful to you, I would appreciate if you mention my name in your credits screen.
+Something like "ScriptableObject Container by Peter Schraut" or "Thanks to Peter Schraut" would be very much appreciated from my side.
+
+You can of course use ScriptableObject Container giving me credit.
+I'm a big fan of giving credits where credits are due though :)
 
 # Examples
 TODO
