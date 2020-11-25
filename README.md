@@ -1,10 +1,17 @@
 # ScriptableObject Container for Unity
 
-The ScriptableObject Container package provides the ability to nest ScriptableObjects and work with them similar to Components.
+The ScriptableObject Container package provides the ability to work with ScriptableObjects in a similar way how you work with Components and GameObjects.
 
-You add a ScriptableObject to another ScriptableObject Container in a similar way how you add a Component to a GameObject.
+You add a ScriptableObject to a ```ScriptableObjectContainer``` via the Inspector in a similar way how you add a Component to a GameObject.
 
-On the scripting side, you retrieve ScriptableObjects from the Container similarily to how you retrieve Components from a GameObject:
+On the scripting side, you get a ScriptableObject from the ```ScriptableObjectContainer``` in a similar way how you get a Component from a GameObject.
+
+| ScriptableObjectContainer  |     GameObject      |
+|----------|---------------|
+| ```ScriptableObject GetSubObject(Type type)``` | ```Component GetComponent(Type type)``` |
+| ```void GetSubObjects(Type type)``` | ```void GetComponents(Type type, List<T> result)``` |
+| ```T GetSubObject<T>()``` | ```T GetComponent<T>``` |
+| ```void GetSubObjects<T>(List<T> result)``` | ```void GetComponents(List<T> result)``` |
 
 # Installation
 
