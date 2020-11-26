@@ -8,10 +8,10 @@ On the scripting side, you get a ScriptableObject from the ```ScriptableObjectCo
 
 | ScriptableObjectContainer  |     GameObject      |
 |----------|---------------|
-| ```ScriptableObject GetSubObject(Type type)``` | ```Component GetComponent(Type type)``` |
-| ```void GetSubObjects(Type type, List<T> results)``` | ```void GetComponents(Type type, List<T> results)``` |
-| ```T GetSubObject<T>()``` | ```T GetComponent<T>``` |
-| ```void GetSubObjects<T>(List<T> results)``` | ```void GetComponents(List<T> results)``` |
+| ```ScriptableObject GetObject(Type type)``` | ```Component GetComponent(Type type)``` |
+| ```void GetObjects(Type type, List<T> results)``` | ```void GetComponents(Type type, List<T> results)``` |
+| ```T GetObject<T>()``` | ```T GetComponent<T>``` |
+| ```void GetObjects<T>(List<T> results)``` | ```void GetComponents(List<T> results)``` |
 
 # Installation
 
@@ -30,7 +30,7 @@ If this package is useful to you, please mention my name in your credits screen.
 Something like "ScriptableObject Container by Peter Schraut" or "Thanks to Peter Schraut" would be very much appreciated.
 
 You can of course use ScriptableObject Container without giving me credit.
-I'm a big fan of giving credits where credits are due though :)
+I'm a big fan of giving credit where credit is due though :)
 
 # Examples
 TODO

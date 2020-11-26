@@ -110,7 +110,7 @@ namespace Oddworm.EditorFramework
 
         protected void DrawSubObjectsGUI()
         {
-            var subObjectsProperty = EditorScriptableObjectContainerUtility.FindSubObjectsProperty(serializedObject);
+            var subObjectsProperty = EditorScriptableObjectContainerUtility.FindObjectsProperty(serializedObject);
 
             DestroyUnusedEditors(subObjectsProperty);
 
@@ -335,7 +335,7 @@ namespace Oddworm.EditorFramework
             serObj.ApplyModifiedPropertiesWithoutUndo();
 
             Undo.RegisterCompleteObjectUndo(parent, "Create");
-            EditorScriptableObjectContainerUtility.AddSubObject(parent, subObject);
+            EditorScriptableObjectContainerUtility.AddObject(parent, subObject);
             Undo.FlushUndoRecordObjects();
             EditorUtility.SetDirty(parent);
         }
@@ -351,7 +351,7 @@ namespace Oddworm.EditorFramework
 
             Undo.IncrementCurrentGroup();
             Undo.RegisterCompleteObjectUndo(parent, "Delete");
-            EditorScriptableObjectContainerUtility.RemoveSubObject(parent, subObject);
+            EditorScriptableObjectContainerUtility.RemoveObject(parent, subObject);
             Undo.FlushUndoRecordObjects();
             EditorUtility.SetDirty(parent);
         }

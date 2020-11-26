@@ -11,18 +11,18 @@ namespace Oddworm.EditorFramework
 {
     public static class EditorScriptableObjectContainerUtility
     {
-        public static SerializedProperty FindSubObjectsProperty(SerializedObject container)
+        public static SerializedProperty FindObjectsProperty(SerializedObject container)
         {
             return container.FindProperty("m_SubObjects");
         }
 
-        public static void AddSubObject(ScriptableObjectContainer container, ScriptableObject subObject)
+        public static void AddObject(ScriptableObjectContainer container, ScriptableObject subObject)
         {
             AssetDatabase.AddObjectToAsset(subObject, container);
             Sync(container);
         }
 
-        public static void RemoveSubObject(ScriptableObjectContainer container, ScriptableObject subObject)
+        public static void RemoveObject(ScriptableObjectContainer container, ScriptableObject subObject)
         {
             Undo.DestroyObjectImmediate(subObject);
             Sync(container);
@@ -56,7 +56,7 @@ namespace Oddworm.EditorFramework
             var serObj = new SerializedObject(container);
             serObj.UpdateIfRequiredOrScript();
 
-            var subObjProperty = FindSubObjectsProperty(serObj);
+            var subObjProperty = FindObjectsProperty(serObj);
 
             // Create a copy of the current m_SubObjects array
             var temp = new List<ScriptableObject>();
