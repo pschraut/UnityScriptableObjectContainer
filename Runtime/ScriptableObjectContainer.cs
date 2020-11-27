@@ -4,6 +4,7 @@
 //
 #pragma warning disable IDE0019 // Use pattern matching
 #pragma warning disable IDE1006 // Naming Styles
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -16,7 +17,8 @@ namespace Oddworm.Framework
         [HideInInspector]
         [SerializeField] ScriptableObject[] m_SubObjects = new ScriptableObject[0];
 
-        public sealed class FilterTypesMethodAttribute : System.Attribute
+        [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
+        public sealed class FilterTypesMethodAttribute : Attribute
         { }
 
         /// <summary>
