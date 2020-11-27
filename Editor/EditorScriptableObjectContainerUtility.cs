@@ -59,34 +59,43 @@ namespace Oddworm.EditorFramework
             var subObjProperty = FindObjectsProperty(serObj);
 
             // Create a copy of the current m_SubObjects array
-            var temp = new List<ScriptableObject>();
+            var objects = new List<ScriptableObject>();
+            var added = new List<ScriptableObject>();
             for (var n = 0; n < subObjProperty.arraySize; ++n)
             {
                 var element = subObjProperty.GetArrayElementAtIndex(n);
-                temp.Add(element.objectReferenceValue as ScriptableObject);
+                objects.Add(element.objectReferenceValue as ScriptableObject);
             }
 
             // add all objects that are currently not in the m_SubObjects array
             foreach (var so in objs)
             {
-                if (temp.IndexOf(so) == -1)
-                    temp.Add(so);
+                if (objects.IndexOf(so) == -1)
+                {
+                    objects.Add(so);
+                    added.Add(so);
+                }
             }
 
             // remove all objects that in the m_SubObjects array, but not in the asset anymore
-            for (var n = temp.Count - 1; n >= 0; --n)
+            for (var n = objects.Count - 1; n >= 0; --n)
             {
-                if (objs.IndexOf(temp[n]) == -1)
-                    temp.RemoveAt(n);
+                if (objs.IndexOf(objects[n]) == -1)
+                    objects.RemoveAt(n);
             }
 
             // and we have our new array
             subObjProperty.ClearArray();
-            for (var n = 0; n < temp.Count; ++n)
+            for (var n = 0; n < objects.Count; ++n)
             {
                 subObjProperty.InsertArrayElementAtIndex(n);
                 var element = subObjProperty.GetArrayElementAtIndex(n);
-                element.objectReferenceValue = temp[n];
+                element.objectReferenceValue = objects[n];
+
+                // If this object has just been added to the container,
+                // expand its view in the Inspector
+                if (added.IndexOf(objects[n]) != -1)
+                    element.isExpanded = true;
             }
 
             serObj.ApplyModifiedPropertiesWithoutUndo();
