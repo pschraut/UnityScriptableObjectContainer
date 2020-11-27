@@ -99,6 +99,21 @@ namespace Oddworm.EditorFramework
                         var editor = GetOrCreateEditor(subObject);
                         EditorGUI.indentLevel++;
                         editor.OnInspectorGUI();
+
+                        // Unity displays a enable/disable checkbox like you find
+                        // for Components in the Inspector, for ScriptableObjects too. However, this has no
+                        // affect whether the ScriptableObject OnEnable method is called. Therewore I implemented
+                        // the following lines that make sure the value is set to true always.
+                        if (editor.serializedObject != null && !serializedObject.isEditingMultipleObjects)
+                        {
+                            var isEnabled = editor.serializedObject.FindProperty("m_Enabled");
+                            if (isEnabled != null && !isEnabled.boolValue)
+                            {
+                                isEnabled.boolValue = true;
+                                editor.serializedObject.ApplyModifiedPropertiesWithoutUndo();
+                            }
+                        }
+
                         EditorGUI.indentLevel--;
                         EditorGUILayout.Separator();
                     }
