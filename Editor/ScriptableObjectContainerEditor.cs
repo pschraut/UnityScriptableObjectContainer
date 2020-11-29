@@ -104,22 +104,6 @@ namespace Oddworm.EditorFramework
 
                         EditorGUILayout.Separator();
                     }
-
-                    // Unity displays a enable/disable checkbox like you find
-                    // for Components in the Inspector, for ScriptableObjects too. However, this has no
-                    // affect whether the ScriptableObject OnEnable method is called. Therewore I implemented
-                    // the following lines that make sure the value is set to true always.
-                    var serObj = editor.serializedObject;
-                    if (serObj != null && !serObj.isEditingMultipleObjects)
-                    {
-                        serObj.UpdateIfRequiredOrScript();
-                        var isEnabled = serObj.FindProperty("m_Enabled");
-                        if (isEnabled != null && !isEnabled.boolValue)
-                        {
-                            isEnabled.boolValue = true;
-                            serObj.ApplyModifiedPropertiesWithoutUndo();
-                        }
-                    }
                 }
             }
 
@@ -158,6 +142,7 @@ namespace Oddworm.EditorFramework
 
         protected bool DrawSubObjectTitlebar(Object subObject, bool foldout)
         {
+            var e = Event.current;
             var isMissing = m_MissingScriptObject == subObject;
             var titlebarRect = GUILayoutUtility.GetRect(10, 24, GUILayout.ExpandWidth(true));
 
@@ -166,8 +151,16 @@ namespace Oddworm.EditorFramework
             buttonRect.width = 20;
             buttonRect.y += 3;
 
+            // Unity adds an "enabled checkbox" for ScriptableObjects, but even if you disable them,
+            // they still get their OnEnable call, so it doesn't work and is probably just an UI oversight.
+            // Therefore we swallow all clicks for that checkbox
+            var enabledRect = titlebarRect;
+            enabledRect.x += 36;
+            enabledRect.width = 22;
+            if (enabledRect.Contains(e.mousePosition) && (e.type != EventType.Layout && e.type != EventType.Repaint))
+                e.Use();
+
             // Handle "button" input befpre EditorGUI.InspectorTitlebar, otherwise the titlebar swallows the input
-            var e = Event.current;
             if (!isMissing && buttonRect.Contains(e.mousePosition) && e.type == EventType.MouseDown && e.button == 0)
             {
                 e.Use();
