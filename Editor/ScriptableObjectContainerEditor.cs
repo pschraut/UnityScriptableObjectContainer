@@ -226,27 +226,43 @@ namespace Oddworm.EditorFramework
             if (targetObject is Script || objectReferences[0] is Script)
                 return;
 
+            // Do not support to drag&drop a container inside another container
+            if (objectReferences[0] is ScriptableObjectContainer)
+                return;
+
             // Support drag/drop for a single container only
             if (targets.Length != 1)
                 return;
 
             // Support drag&drop inside the same conainer only
             //var dropEditor = FindEditor(targetObject);
-            var dragEditor = FindEditor(objectReferences[0]);
-            if (dragEditor == null)
-                return;
-
-            DragAndDrop.visualMode = DragAndDropVisualMode.Move;
+            var fromSelf = FindEditor(objectReferences[0]) != null;
+            DragAndDrop.visualMode = fromSelf ? DragAndDropVisualMode.Move : DragAndDropVisualMode.Copy;
             GUI.Box(targetRect, GUIContent.none, "InsertionMarker");
 
             if (e.type == EventType.DragPerform)
             {
                 e.Use();
 
+                var container = (ScriptableObjectContainer)serializedObject.targetObject;
                 Undo.IncrementCurrentGroup();
-                Undo.RegisterCompleteObjectUndo(this.target, "Move Object(s)");
-                EditorScriptableObjectContainerUtility.MoveObject(serializedObject, (ScriptableObject)objectReferences[0], (ScriptableObject)targetObject);
+                if (fromSelf)
+                {
+                    Undo.RegisterCompleteObjectUndo(this.target, "Move Object");
+                    EditorScriptableObjectContainerUtility.MoveObject(container, (ScriptableObject)objectReferences[0], (ScriptableObject)targetObject);
+                }
+                else
+                {
+                    Undo.RegisterCompleteObjectUndo(this.target, "Add Object");
+                    var newObj = ScriptableObject.CreateInstance(objectReferences[0].GetType());
+                    EditorScriptableObjectContainerUtility.AddObject(container, newObj);
+                    EditorUtility.CopySerialized(objectReferences[0], newObj);
+                    EditorScriptableObjectContainerUtility.AssignContainerProperty(container, newObj);
+                    EditorScriptableObjectContainerUtility.MoveObject(container, newObj, (ScriptableObject)targetObject);
+                }
                 Undo.FlushUndoRecordObjects();
+                EditorUtility.SetDirty(serializedObject.targetObject);
+                serializedObject.UpdateIfRequiredOrScript();
                 GUIUtility.ExitGUI();
             }
         }
@@ -432,14 +448,9 @@ namespace Oddworm.EditorFramework
             subObject.name = type.Name;
             Undo.RegisterCreatedObjectUndo(subObject, "Create");
 
-            var serObj = new SerializedObject(subObject);
-            var serProp = serObj.FindProperty("m_ScriptableObjectContainer");
-            if (serProp != null)
-                serProp.objectReferenceValue = parent;
-            serObj.ApplyModifiedPropertiesWithoutUndo();
-
             Undo.RegisterCompleteObjectUndo(parent, "Create");
             EditorScriptableObjectContainerUtility.AddObject(parent, subObject);
+            EditorScriptableObjectContainerUtility.AssignContainerProperty(parent, subObject);
             Undo.FlushUndoRecordObjects();
             EditorUtility.SetDirty(parent);
         }

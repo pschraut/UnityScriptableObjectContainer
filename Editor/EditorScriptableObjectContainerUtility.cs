@@ -11,12 +11,15 @@ namespace Oddworm.EditorFramework
 {
     public static class EditorScriptableObjectContainerUtility
     {
-        public static void MoveObject(SerializedObject container, ScriptableObject moveObject, ScriptableObject targetObject)
+        public static void MoveObject(ScriptableObjectContainer container, ScriptableObject moveObject, ScriptableObject targetObject)
         {
             if (moveObject == targetObject)
                 return;
 
-            var subObjProperty = FindObjectsProperty(container);
+            var serContainer = new SerializedObject(container);
+            serContainer.UpdateIfRequiredOrScript();
+
+            var subObjProperty = FindObjectsProperty(serContainer);
 
             // Create a copy of the current m_SubObjects array
             var objects = new List<ScriptableObject>();
@@ -41,7 +44,7 @@ namespace Oddworm.EditorFramework
                 element.objectReferenceValue = objects[n];
             }
 
-            container.ApplyModifiedPropertiesWithoutUndo();
+            serContainer.ApplyModifiedPropertiesWithoutUndo();
         }
 
         public static SerializedProperty FindObjectsProperty(SerializedObject container)
@@ -49,8 +52,31 @@ namespace Oddworm.EditorFramework
             return container.FindProperty("m_SubObjects");
         }
 
+        public static void AssignContainerProperty(ScriptableObjectContainer container, ScriptableObject subObject)
+        {
+            var serObj = new SerializedObject(subObject);
+            var serProp = serObj.FindProperty("m_ScriptableObjectContainer");
+            if (serProp != null)
+                serProp.objectReferenceValue = container;
+            serObj.ApplyModifiedProperties();
+            //serObj.ApplyModifiedPropertiesWithoutUndo();
+        }
+
         public static void AddObject(ScriptableObjectContainer container, ScriptableObject subObject)
         {
+            if (subObject is ScriptableObjectContainer)
+            {
+                Debug.LogError($"You cannot add a {nameof(ScriptableObjectContainer)} into another {nameof(ScriptableObjectContainer)}");
+                return;
+            }
+
+            var serObj = new SerializedObject(subObject);
+            var serProp = serObj.FindProperty("m_ScriptableObjectContainer");
+            if (serProp != null)
+                serProp.objectReferenceValue = container;
+            serObj.ApplyModifiedProperties();
+            //serObj.ApplyModifiedPropertiesWithoutUndo();
+
             AssetDatabase.AddObjectToAsset(subObject, container);
             Sync(container);
         }
