@@ -80,7 +80,9 @@ namespace Oddworm.EditorFramework
         {
             if (subObject == null)
             {
+                EditorGUI.BeginDisabledGroup(true);
                 isExpanded = DrawSubObjectTitlebar(m_MissingScriptObject, isExpanded);
+                EditorGUI.EndDisabledGroup();
                 if (isExpanded)
                 {
                     EditorGUI.indentLevel++;
