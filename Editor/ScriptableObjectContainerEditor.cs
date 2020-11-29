@@ -15,11 +15,14 @@ namespace Oddworm.EditorFramework
     {
         List<Editor> m_Editors = new List<Editor>();
         Script m_MissingScriptObject = default; // If a sub-object is null, use the m_MissingScriptObject as object to draw the titlebar
+        string m_SearchText = "";
+        UnityEditor.IMGUI.Controls.SearchField m_SearchField = default;
 
         class Script : ScriptableObject { }
 
         protected virtual void OnEnable()
         {
+            m_SearchText = "";
             m_MissingScriptObject = ScriptableObject.CreateInstance<Script>();
         }
 
@@ -51,6 +54,7 @@ namespace Oddworm.EditorFramework
             serializedObject.UpdateIfRequiredOrScript();
 
             EditorGUILayout.Separator();
+            DrawSearchField();
 
             EditorGUI.indentLevel++;
             DrawContainerGUI();
@@ -60,12 +64,20 @@ namespace Oddworm.EditorFramework
 
             DrawSubObjectsGUI();
 
-            //EditorGUILayout.Separator();
-
             if (serializedObject.hasModifiedProperties)
                 serializedObject.ApplyModifiedProperties();
 
             DrawAddSubObjectButton();
+        }
+
+        protected void DrawSearchField()
+        {
+            if (m_SearchField == null)
+                m_SearchField = new UnityEditor.IMGUI.Controls.SearchField();
+
+            EditorGUI.indentLevel++;
+            m_SearchText = m_SearchField.OnToolbarGUI(m_SearchText);
+            EditorGUI.indentLevel--;
         }
 
         /// <summary>
@@ -117,6 +129,7 @@ namespace Oddworm.EditorFramework
             var subObjectsProperty = EditorScriptableObjectContainerUtility.FindObjectsProperty(serializedObject);
 
             DestroyUnusedEditors(subObjectsProperty);
+            var searchSplits = m_SearchText.Split(new[] { ' ', '\t', '\r' }, System.StringSplitOptions.RemoveEmptyEntries);
 
             for (var n = 0; n < subObjectsProperty.arraySize; ++n)
             {
@@ -125,6 +138,23 @@ namespace Oddworm.EditorFramework
                     continue;
 
                 var subObject = (ScriptableObject)subObjProperty.objectReferenceValue;
+
+                if (searchSplits.Length > 0)
+                {
+                    var isVisible = false;
+                    var subObjectName = subObject.name;
+                    foreach (var sp in searchSplits)
+                    {
+                        if (subObjectName.IndexOf(sp, System.StringComparison.InvariantCultureIgnoreCase) != -1)
+                        {
+                            isVisible = true;
+                            break;
+                        }
+                    }
+                    if (!isVisible)
+                        continue;
+                }
+
                 subObjProperty.isExpanded = DrawSubObjectGUI(subObject, subObjProperty.isExpanded);
             }
 
@@ -222,12 +252,13 @@ namespace Oddworm.EditorFramework
             if (objectReferences.Length != 1)
                 return;
 
-            // Do not support to drag&drop missing script references, as this caused issues in my tests
-            if (targetObject is Script || objectReferences[0] is Script)
+            // Do not support to drag&drop ScriptableObjects, but NOT a container inside another container
+            var dragObj = objectReferences[0] as ScriptableObject;
+            if (dragObj == null || dragObj is ScriptableObjectContainer)
                 return;
 
-            // Do not support to drag&drop a container inside another container
-            if (objectReferences[0] is ScriptableObjectContainer)
+            // Do not support to drag&drop missing script references, as this caused issues in my tests
+            if (targetObject is Script || objectReferences[0] is Script)
                 return;
 
             // Support drag/drop for a single container only
@@ -236,7 +267,7 @@ namespace Oddworm.EditorFramework
 
             // Support drag&drop inside the same conainer only
             //var dropEditor = FindEditor(targetObject);
-            var fromSelf = FindEditor(objectReferences[0]) != null;
+            var fromSelf = FindEditor(dragObj) != null;
             DragAndDrop.visualMode = fromSelf ? DragAndDropVisualMode.Move : DragAndDropVisualMode.Copy;
             GUI.Box(targetRect, GUIContent.none, "InsertionMarker");
 
