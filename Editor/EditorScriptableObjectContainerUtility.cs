@@ -11,6 +11,39 @@ namespace Oddworm.EditorFramework
 {
     public static class EditorScriptableObjectContainerUtility
     {
+        public static void MoveObject(SerializedObject container, ScriptableObject moveObject, ScriptableObject targetObject)
+        {
+            if (moveObject == targetObject)
+                return;
+
+            var subObjProperty = FindObjectsProperty(container);
+
+            // Create a copy of the current m_SubObjects array
+            var objects = new List<ScriptableObject>();
+            for (var n = 0; n < subObjProperty.arraySize; ++n)
+            {
+                var element = subObjProperty.GetArrayElementAtIndex(n);
+                objects.Add(element.objectReferenceValue as ScriptableObject);
+            }
+
+            objects.Remove(moveObject);
+            var insertAt = targetObject == null ? -1 : objects.IndexOf(targetObject);
+            if (insertAt == -1)
+                insertAt = objects.Count;
+            objects.Insert(insertAt, moveObject);
+
+            // and we have our new array
+            subObjProperty.ClearArray();
+            for (var n = 0; n < objects.Count; ++n)
+            {
+                subObjProperty.InsertArrayElementAtIndex(n);
+                var element = subObjProperty.GetArrayElementAtIndex(n);
+                element.objectReferenceValue = objects[n];
+            }
+
+            container.ApplyModifiedPropertiesWithoutUndo();
+        }
+
         public static SerializedProperty FindObjectsProperty(SerializedObject container)
         {
             return container.FindProperty("m_SubObjects");

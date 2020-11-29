@@ -60,7 +60,7 @@ namespace Oddworm.EditorFramework
 
             DrawSubObjectsGUI();
 
-            EditorGUILayout.Separator();
+            //EditorGUILayout.Separator();
 
             if (serializedObject.hasModifiedProperties)
                 serializedObject.ApplyModifiedProperties();
@@ -125,6 +125,19 @@ namespace Oddworm.EditorFramework
                 var subObject = (ScriptableObject)subObjProperty.objectReferenceValue;
                 subObjProperty.isExpanded = DrawSubObjectGUI(subObject, subObjProperty.isExpanded);
             }
+
+            var dropRect = GUILayoutUtility.GetRect(1, 3, GUILayout.ExpandWidth(true));
+            DrawSeparator(dropRect);
+            HandleDragAndDrop(dropRect, null);
+
+            void DrawSeparator(Rect d)
+            {
+                using (new EditorGUI.DisabledGroupScope(true))
+                {
+                    d.height = 1;
+                    GUI.Box(d, GUIContent.none, EditorStyles.textField);
+                }
+            }
         }
 
         protected void DrawAddSubObjectButton()
@@ -188,20 +201,73 @@ namespace Oddworm.EditorFramework
             if (!isMissing)
                 GUI.Button(buttonRect, EditorGUIUtility.IconContent("d__Popup"), "IconButton");
 
+            var dropRect = titlebarRect;
+            dropRect.y -= 3;
+            dropRect.height = 3;
+            HandleDragAndDrop(dropRect, subObject);
+
             return value;
         }
 
+        void HandleDragAndDrop(Rect targetRect, Object targetObject)
+        {
+            var e = Event.current;
+            if (!targetRect.Contains(e.mousePosition))
+                return;
+
+            // Support drag&drop of a single object only
+            var objectReferences = DragAndDrop.objectReferences;
+            if (objectReferences.Length != 1)
+                return;
+
+            // Do not support to drag&drop missing script references, as this caused issues in my tests
+            if (targetObject is Script || objectReferences[0] is Script)
+                return;
+
+            // Support drag/drop for a single container only
+            if (targets.Length != 1)
+                return;
+
+            // Support drag&drop inside the same conainer only
+            //var dropEditor = FindEditor(targetObject);
+            var dragEditor = FindEditor(objectReferences[0]);
+            if (dragEditor == null)
+                return;
+
+            DragAndDrop.visualMode = DragAndDropVisualMode.Move;
+            GUI.Box(targetRect, GUIContent.none, "InsertionMarker");
+
+            if (e.type == EventType.DragPerform)
+            {
+                e.Use();
+
+                Undo.IncrementCurrentGroup();
+                Undo.RegisterCompleteObjectUndo(this.target, "Move Object(s)");
+                EditorScriptableObjectContainerUtility.MoveObject(serializedObject, (ScriptableObject)objectReferences[0], (ScriptableObject)targetObject);
+                Undo.FlushUndoRecordObjects();
+                GUIUtility.ExitGUI();
+            }
+        }
+
         Editor GetOrCreateEditor(Object t)
+        {
+            var editor = FindEditor(t);
+            if (editor != null)
+                return editor;
+
+            editor = Editor.CreateEditor(t);
+            m_Editors.Add(editor);
+            return editor;
+        }
+
+        Editor FindEditor(Object t)
         {
             for (var n = 0; n < m_Editors.Count; ++n)
             {
                 if (m_Editors[n].target == t)
                     return m_Editors[n];
             }
-
-            var editor = Editor.CreateEditor(t);
-            m_Editors.Add(editor);
-            return editor;
+            return null;
         }
 
         void DestroyUnusedEditors(SerializedProperty subObjectsProperty)
