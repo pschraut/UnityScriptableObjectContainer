@@ -132,11 +132,11 @@ namespace Oddworm.EditorFramework
 
             void DrawSeparator(Rect d)
             {
-                using (new EditorGUI.DisabledGroupScope(true))
-                {
-                    d.height = 1;
-                    GUI.Box(d, GUIContent.none, EditorStyles.textField);
-                }
+                d.height = 1;
+                var personalColor = new Color(0.5f, 0.5f, 0.5f, 1);
+                var proColor = new Color(0.1f, 0.1f, 0.1f, 1);
+                var color = EditorGUIUtility.isProSkin ? proColor : personalColor;
+                EditorGUI.DrawRect(d, color);
             }
         }
 
