@@ -62,6 +62,16 @@ namespace Oddworm.EditorFramework
             //serObj.ApplyModifiedPropertiesWithoutUndo();
         }
 
+        public static void ClearContainerProperty(ScriptableObject subObject)
+        {
+            var serObj = new SerializedObject(subObject);
+            var serProp = serObj.FindProperty("m_ScriptableObjectContainer");
+            if (serProp != null)
+                serProp.objectReferenceValue = null;
+            serObj.ApplyModifiedProperties();
+            //serObj.ApplyModifiedPropertiesWithoutUndo();
+        }
+
         public static void AddObject(ScriptableObjectContainer container, ScriptableObject subObject)
         {
             if (subObject is ScriptableObjectContainer)

@@ -211,17 +211,24 @@ namespace Oddworm.EditorFramework
                 e.Use();
 
                 var menu = new GenericMenu();
-                menu.AddItem(new GUIContent("Remove Object"), false, delegate (object o)
+                menu.AddItem(new GUIContent("Remove"), false, delegate (object o)
                 {
                     RemoveSubObject((ScriptableObject)o);
                 }, subObject);
 
                 menu.AddSeparator("");
 
-                menu.AddItem(new GUIContent("Rename Object"), false, delegate (object o)
+                menu.AddItem(new GUIContent("Rename..."), false, delegate (object o)
                 {
                     var wnd = EditorWindow.GetWindow<RenameDialog>();
                     wnd.Show((Object)o);
+                }, subObject);
+
+                menu.AddSeparator("");
+
+                menu.AddItem(new GUIContent("Extract..."), false, delegate (object o)
+                {
+                    ExtractSubObject((ScriptableObject)o);
                 }, subObject);
 
                 menu.ShowAsContext();
@@ -500,6 +507,42 @@ namespace Oddworm.EditorFramework
             EditorScriptableObjectContainerUtility.RemoveObject(parent, subObject);
             Undo.FlushUndoRecordObjects();
             EditorUtility.SetDirty(parent);
+        }
+
+        protected void ExtractSubObject(ScriptableObject subObject)
+        {
+            if (subObject == null)
+                return;
+
+            var defaultName = ObjectNames.NicifyVariableName($"{subObject.name} ({subObject.GetType().Name})").Trim();
+            var assetPath = EditorUtility.SaveFilePanelInProject($"Extract {subObject.name} ({subObject.GetType().Name})...", defaultName, "asset", "Please select an extraction path.");
+            if (string.IsNullOrEmpty(assetPath))
+                return;
+
+            AssetDatabase.StartAssetEditing();
+            try
+            {
+                string metaContent = "";
+                if (System.IO.File.Exists(assetPath))
+                {
+                    var metaPath = AssetDatabase.GetTextMetaFilePathFromAssetPath(assetPath);
+                    metaContent = System.IO.File.ReadAllText(metaPath);
+                    System.IO.File.Delete(assetPath);
+                    System.IO.File.Delete(metaPath);
+                }
+
+                var newObj = ScriptableObject.CreateInstance(subObject.GetType());
+                EditorUtility.CopySerialized(subObject, newObj);
+                EditorScriptableObjectContainerUtility.ClearContainerProperty(newObj);
+                AssetDatabase.CreateAsset(newObj, assetPath);
+
+                if (!string.IsNullOrEmpty(metaContent))
+                    System.IO.File.WriteAllText(AssetDatabase.GetTextMetaFilePathFromAssetPath(assetPath), metaContent);
+            }
+            finally
+            {
+                AssetDatabase.StopAssetEditing();
+            }
         }
     }
 }
