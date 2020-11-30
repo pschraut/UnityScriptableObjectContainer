@@ -291,12 +291,15 @@ namespace Oddworm.EditorFramework
                 }
                 else
                 {
-                    Undo.RegisterCompleteObjectUndo(this.target, "Add Object");
-                    var newObj = ScriptableObject.CreateInstance(objectReferences[0].GetType());
-                    EditorScriptableObjectContainerUtility.AddObject(container, newObj);
-                    EditorUtility.CopySerialized(objectReferences[0], newObj);
-                    EditorScriptableObjectContainerUtility.AssignContainerProperty(container, newObj);
-                    EditorScriptableObjectContainerUtility.MoveObject(container, newObj, (ScriptableObject)targetObject);
+                    if (EditorScriptableObjectContainerUtility.CanAddObjectOfType(container, objectReferences[0].GetType()))
+                    {
+                        Undo.RegisterCompleteObjectUndo(this.target, "Add Object");
+                        var newObj = ScriptableObject.CreateInstance(objectReferences[0].GetType());
+                        EditorScriptableObjectContainerUtility.AddObject(container, newObj);
+                        EditorUtility.CopySerialized(objectReferences[0], newObj);
+                        EditorScriptableObjectContainerUtility.AssignContainerProperty(container, newObj);
+                        EditorScriptableObjectContainerUtility.MoveObject(container, newObj, (ScriptableObject)targetObject);
+                    }
                 }
                 Undo.FlushUndoRecordObjects();
                 EditorUtility.SetDirty(serializedObject.targetObject);
@@ -479,6 +482,9 @@ namespace Oddworm.EditorFramework
         protected void CreateSubObject(ScriptableObjectContainer parent, System.Type type)
         {
             if (parent == null)
+                return;
+
+            if (!EditorScriptableObjectContainerUtility.CanAddObjectOfType(parent, type))
                 return;
 
             Undo.IncrementCurrentGroup();

@@ -11,6 +11,27 @@ namespace Oddworm.EditorFramework
 {
     public static class EditorScriptableObjectContainerUtility
     {
+        public static bool CanAddObjectOfType(ScriptableObjectContainer container, System.Type type)
+        {
+            var addedObj = container.GetObject(type);
+            if (addedObj != null)
+            {
+                foreach(var attr in type.GetCustomAttributes(true))
+                {
+                    var disallow = attr as DisallowMultipleSubAssetAttribute;
+                    if (disallow != null)
+                    {
+                        var title = $"Can't add the same object multiple times!";
+                        var message = $"The object '{type.Name}' cannot be added, because '{container.name}' already contains an object of the same type.\n\nRemove the [DisallowMultipleSubAsset] attribute from class '{type.Name}' to be able to add multiple objects of the same type.";
+                        EditorUtility.DisplayDialog(title, message, "OK");
+                        return false;
+                    }
+                }
+            }
+
+            return true;
+        }
+
         public static void MoveObject(ScriptableObjectContainer container, ScriptableObject moveObject, ScriptableObject targetObject)
         {
             if (moveObject == targetObject)
