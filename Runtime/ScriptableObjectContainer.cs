@@ -8,6 +8,10 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
+#if UNITY_EDITOR
+using System.Reflection;
+#endif
+
 namespace Oddworm.Framework
 {
     [CreateAssetMenu(menuName = "ScriptableObject Container", order = 310)]
@@ -116,6 +120,55 @@ namespace Oddworm.Framework
                 if (subObjectType == type || subObjectType.IsSubclassOf(type))
                     results.Add(subObject);
             }
+        }
+
+        protected virtual void OnValidate()
+        {
+#if UNITY_EDITOR
+            for (var n = 0; n < m_SubObjects.Length; ++n)
+            {
+                var so = m_SubObjects[n];
+                if (so == null)
+                    continue;
+
+                foreach (var fieldInfo in so.GetType().GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.FlattenHierarchy))
+                {
+                    var attribute = fieldInfo.GetCustomAttribute<ScriptableObjectContainerAttribute>(true);
+                    if (attribute == null)
+                        continue;
+
+                    // Make sure the field is a reference to a ScriptableObject or derived type
+                    var valid = false;
+                    if (fieldInfo.FieldType == typeof(ScriptableObject))
+                        valid = true;
+                    if (fieldInfo.FieldType.IsSubclassOf(typeof(ScriptableObject)))
+                        valid = true;
+                    if (!valid)
+                    {
+                        Debug.LogError($"The field '{fieldInfo.Name}' in class '{so.GetType().FullName}' uses the [{nameof(ScriptableObjectContainerAttribute)}] attribute. The attribute can be used for fields of type '{nameof(ScriptableObject)}' only, but it uses '{fieldInfo.FieldType.FullName}' which does not inherit from '{nameof(ScriptableObject)}'.");
+                        continue;
+                    }
+
+                    // Make sure the field- and container type are compatible
+                    valid = false;
+                    if (fieldInfo.FieldType == GetType())
+                        valid = true;
+                    if (GetType().IsSubclassOf(fieldInfo.FieldType))
+                        valid = true;
+                    if (!valid)
+                    {
+                        Debug.LogError($"The field '{fieldInfo.Name}' in class '{so.GetType().FullName}' uses the [{nameof(ScriptableObjectContainerAttribute)}] attribute, but the container and field type are incompatible. The field is of type '{fieldInfo.FieldType.FullName}', but the container is of type '{GetType().FullName}', which is not a sub-class of '{fieldInfo.FieldType.FullName}'.");
+                        continue;
+                    }
+
+                    if ((ScriptableObject)fieldInfo.GetValue(so) != this)
+                    {
+                        fieldInfo.SetValue(so, this);
+                        UnityEditor.EditorUtility.SetDirty(so);
+                    }
+                }
+            }
+#endif
         }
 
         /// <summary>

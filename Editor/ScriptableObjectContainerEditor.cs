@@ -298,7 +298,6 @@ namespace Oddworm.EditorFramework
                         var newObj = ScriptableObject.CreateInstance(objectReferences[0].GetType());
                         EditorScriptableObjectContainerUtility.AddObject(container, newObj);
                         EditorUtility.CopySerialized(objectReferences[0], newObj);
-                        EditorScriptableObjectContainerUtility.AssignContainerProperty(container, newObj);
                         EditorScriptableObjectContainerUtility.MoveObject(container, newObj, (ScriptableObject)targetObject);
                     }
                 }
@@ -495,7 +494,6 @@ namespace Oddworm.EditorFramework
 
             Undo.RegisterCompleteObjectUndo(parent, "Create");
             EditorScriptableObjectContainerUtility.AddObject(parent, subObject);
-            EditorScriptableObjectContainerUtility.AssignContainerProperty(parent, subObject);
             Undo.FlushUndoRecordObjects();
             EditorUtility.SetDirty(parent);
         }
@@ -540,7 +538,6 @@ namespace Oddworm.EditorFramework
 
                 var newObj = ScriptableObject.CreateInstance(subObject.GetType());
                 EditorUtility.CopySerialized(subObject, newObj);
-                EditorScriptableObjectContainerUtility.ClearContainerProperty(newObj);
                 AssetDatabase.CreateAsset(newObj, assetPath);
 
                 if (!string.IsNullOrEmpty(metaContent))
