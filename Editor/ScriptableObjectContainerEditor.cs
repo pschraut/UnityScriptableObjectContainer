@@ -216,11 +216,18 @@ namespace Oddworm.EditorFramework
             // Unity adds an "enabled checkbox" for ScriptableObjects, but even if you disable them,
             // they still get their OnEnable call, so it doesn't work and is probably just an UI oversight.
             // Therefore we swallow all clicks for that checkbox
+            var enabledHit = false;
             var enabledRect = titlebarRect;
-            enabledRect.x += 36;
-            enabledRect.width = 22;
+            enabledRect.x += 37;
+            enabledRect.y += 1;
+            enabledRect.width = 21;
+            enabledRect.height -= 4;
             if (enabledRect.Contains(e.mousePosition) && (e.type != EventType.Layout && e.type != EventType.Repaint))
+            {
+                enabledHit = e.type == EventType.MouseUp;
                 e.Use();
+            }
+
 
             // Handle "button" input befpre EditorGUI.InspectorTitlebar, otherwise the titlebar swallows the input
             if (!isMissing && buttonRect.Contains(e.mousePosition) && e.type == EventType.MouseDown && e.button == 0)
@@ -254,9 +261,40 @@ namespace Oddworm.EditorFramework
 
             var value = EditorGUI.InspectorTitlebar(titlebarRect, foldout, subObject, true);
 
-            // Draw the button, this is only for its visual appearance
             if (!isMissing)
+            {
+                // Draw the button, this is only for its visual appearance
                 GUI.Button(buttonRect, EditorGUIUtility.IconContent("d__Popup"), "IconButton");
+
+
+                var fields = EditorScriptableObjectContainerUtility.GetObjectToggleFields((ScriptableObject)subObject);
+                var isEnabledPresent = fields.Count > 0;
+
+                enabledRect.x += 3;
+                if (isEnabledPresent)
+                {
+                    var isEnabled = EditorScriptableObjectContainerUtility.GetObjectToggleValue((ScriptableObject)subObject, fields);
+                    EditorGUI.Toggle(enabledRect, GUIContent.none, isEnabled);
+
+                    var newIsEnabled = isEnabled;
+                    if (enabledHit)
+                        newIsEnabled = !newIsEnabled;
+
+                    if (newIsEnabled != isEnabled)
+                    {
+                        Undo.RecordObject(subObject, "Inspector");
+                        EditorScriptableObjectContainerUtility.SetObjectToggleValue((ScriptableObject)subObject, fields, newIsEnabled);
+                        EditorUtility.SetDirty(subObject);
+                        Undo.FlushUndoRecordObjects();
+                    }
+                }
+                else
+                {
+                    EditorGUI.BeginDisabledGroup(true);
+                    EditorGUI.Toggle(enabledRect, new GUIContent("", "Decorate a bool field with [SubAssetToggle] to toggle the enabled state."), true);
+                    EditorGUI.EndDisabledGroup();
+                }
+            }
 
             var dropRect = titlebarRect;
             dropRect.y -= 3;

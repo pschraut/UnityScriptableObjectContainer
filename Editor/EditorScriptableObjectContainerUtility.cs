@@ -6,11 +6,61 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 using Oddworm.Framework;
+using System.Reflection;
 
 namespace Oddworm.EditorFramework
 {
     public static class EditorScriptableObjectContainerUtility
     {
+        public static List<FieldInfo> GetObjectToggleFields(ScriptableObject subObject)
+        {
+            var result = new List<FieldInfo>();
+            var type = subObject.GetType();
+            var loopguard = 0;
+
+            do
+            {
+                if (++loopguard > 64)
+                {
+                    Debug.LogError($"Loopguard kicked in, detected more than 64 levels of inheritence?");
+                    break;
+                }
+
+                foreach (var fieldInfo in type.GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.FlattenHierarchy))
+                {
+                    if (fieldInfo.FieldType != typeof(bool))
+                        continue;
+                    if (fieldInfo.GetCustomAttribute<SubAssetToggleAttribute>(true) == null)
+                        continue;
+
+                    result.Add(fieldInfo);
+                }
+
+                type = type.BaseType;
+            } while (type != null && type != typeof(ScriptableObject));
+
+            return result;
+        }
+
+        public static bool GetObjectToggleValue(ScriptableObject subObject, List<FieldInfo> fields)
+        {
+            foreach (var fieldInfo in fields)
+            {
+                if ((bool)fieldInfo.GetValue(subObject))
+                    return true;
+            }
+
+            return false;
+        }
+
+        public static void SetObjectToggleValue(ScriptableObject subObject, List<FieldInfo> fields, bool value)
+        {
+            foreach (var fieldInfo in fields)
+            {
+                fieldInfo.SetValue(subObject, value);
+            }
+        }
+
         public static bool CanAddObjectOfType(ScriptableObjectContainer container, System.Type type)
         {
             var addedObj = container.GetObject(type);
