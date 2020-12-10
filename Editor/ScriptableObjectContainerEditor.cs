@@ -211,17 +211,18 @@ namespace Oddworm.EditorFramework
                 e.Use();
 
                 var menu = new GenericMenu();
-                menu.AddItem(new GUIContent("Remove"), false, delegate (object o)
-                {
-                    RemoveSubObject((ScriptableObject)o);
-                }, subObject);
-
-                menu.AddSeparator("");
 
                 menu.AddItem(new GUIContent("Rename..."), false, delegate (object o)
                 {
                     var wnd = EditorWindow.GetWindow<RenameDialog>();
                     wnd.Show((Object)o);
+                }, subObject);
+
+                menu.AddSeparator("");
+
+                menu.AddItem(new GUIContent("Remove"), false, delegate (object o)
+                {
+                    RemoveSubObject((ScriptableObject)o);
                 }, subObject);
 
                 menu.AddSeparator("");
