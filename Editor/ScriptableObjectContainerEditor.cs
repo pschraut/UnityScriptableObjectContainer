@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 using Oddworm.Framework;
+using System.Reflection;
 
 namespace Oddworm.EditorFramework
 {
@@ -62,12 +63,28 @@ namespace Oddworm.EditorFramework
 
             EditorGUILayout.Separator();
 
+            EditorGUI.BeginChangeCheck();
             DrawSubObjectsGUI();
+            var hasChanged = EditorGUI.EndChangeCheck();
 
             if (serializedObject.hasModifiedProperties)
                 serializedObject.ApplyModifiedProperties();
 
             DrawAddSubObjectButton();
+
+            // If a subobject has changed, run the container OnValidate method too.
+            if (hasChanged)
+            {
+                foreach(var t in targets)
+                {
+                    if (t == null)
+                        continue;
+
+                    var m = t.GetType().GetMethod("OnValidate", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                    if (m != null)
+                        m.Invoke(t, null);
+                }
+            }
         }
 
         protected void DrawSearchField()
