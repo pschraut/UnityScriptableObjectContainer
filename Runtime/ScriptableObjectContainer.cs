@@ -26,15 +26,6 @@ namespace Oddworm.Framework
         { }
 
         /// <summary>
-        /// Gets a reference to the internal array that contains the objects.
-        /// </summary>
-        public ScriptableObject[] objects
-        {
-            [System.Diagnostics.DebuggerStepThrough]
-            get { return m_SubObjects; }
-        }
-
-        /// <summary>
         /// Gets the object of the specified type.
         /// </summary>
         /// <param name="type">The type of object to retrieve. The type must derive from ScriptableObject or must be an interface.</param>
