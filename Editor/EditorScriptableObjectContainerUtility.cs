@@ -12,6 +12,11 @@ namespace Oddworm.EditorFramework
 {
     public static class EditorScriptableObjectContainerUtility
     {
+        /// <summary>
+        /// Gets all private and public fields in the specified <paramref name="subObject"/> that are decorated with the <c>[SubAssetToggle]</c> attribute.
+        /// </summary>
+        /// <param name="subObject">The sub-asset.</param>
+        /// <returns>A list of fields decorated with [<see cref="SubAssetToggleAttribute"/>].</returns>
         public static List<FieldInfo> GetObjectToggleFields(ScriptableObject subObject)
         {
             var result = new List<FieldInfo>();
@@ -42,9 +47,15 @@ namespace Oddworm.EditorFramework
             return result;
         }
 
-        public static bool GetObjectToggleValue(ScriptableObject subObject, List<FieldInfo> fields)
+        /// <summary>
+        /// Gets if any of the specified <paramref name="toggleFields"/> is <c>true</c>.
+        /// </summary>
+        /// <param name="subObject">The sub-asset.</param>
+        /// <param name="toggleFields">The result of <see cref="GetObjectToggleFields(ScriptableObject)"/></param>
+        /// <returns><c>true</c> if any field is <c>true</c>, <c>false</c> otherwise.</returns>
+        public static bool GetObjectToggleValue(ScriptableObject subObject, List<FieldInfo> toggleFields)
         {
-            foreach (var fieldInfo in fields)
+            foreach (var fieldInfo in toggleFields)
             {
                 if ((bool)fieldInfo.GetValue(subObject))
                     return true;
@@ -53,14 +64,30 @@ namespace Oddworm.EditorFramework
             return false;
         }
 
-        public static void SetObjectToggleValue(ScriptableObject subObject, List<FieldInfo> fields, bool value)
+        /// <summary>
+        /// Sets all <paramref name="toggleFields"/> to the specified <paramref name="value"/>.
+        /// </summary>
+        /// <param name="subObject">The sub-asset.</param>
+        /// <param name="toggleFields">The result of <see cref="GetObjectToggleFields(ScriptableObject)"/></param>
+        /// <param name="value">The value to set all <paramref name="toggleFields"/> to.</param>
+        public static void SetObjectToggleValue(ScriptableObject subObject, List<FieldInfo> toggleFields, bool value)
         {
-            foreach (var fieldInfo in fields)
+            foreach (var fieldInfo in toggleFields)
             {
                 fieldInfo.SetValue(subObject, value);
             }
         }
 
+        /// <summary>
+        /// Gets whether a sub-asset of the specied <paramref name="type"/> can be asset to the <paramref name="container"/>.
+        /// </summary>
+        /// <param name="container">The container.</param>
+        /// <param name="type">The type of the sub-asset.</param>
+        /// <returns><c>true</c> when it can be added, <c>false</c> otherwise.</returns>
+        /// <remarks>
+        /// For example, if the container contains a sub-asset that uses the [<see cref="DisallowMultipleSubAssetAttribute"/>],
+        /// it can't add another sub-asset of the same type.
+        /// </remarks>
         public static bool CanAddObjectOfType(ScriptableObjectContainer container, System.Type type)
         {
             var addedObj = container.GetObject(type);
@@ -82,7 +109,13 @@ namespace Oddworm.EditorFramework
             return true;
         }
 
-        public static void MoveObject(ScriptableObjectContainer container, ScriptableObject moveObject, ScriptableObject targetObject)
+        /// <summary>
+        /// Moves the specified moveObject above the specified targetObject.
+        /// </summary>
+        /// <param name="container">The container.</param>
+        /// <param name="moveObject">The sub-asset to move in the Inspector above or below another sub-asset.</param>
+        /// <param name="targetObject">The target sub-asset or null. If null then the moveObject is moved to the bottom of the list.</param>
+        public static void MoveObject(ScriptableObjectContainer container, ScriptableObject moveObject, ScriptableObject targetObject = null)
         {
             if (moveObject == targetObject)
                 return;
@@ -123,28 +156,23 @@ namespace Oddworm.EditorFramework
             return container.FindProperty("m_SubObjects");
         }
 
-        public static void AddObject(ScriptableObjectContainer container, ScriptableObject subObject)
+        public static bool AddObject(ScriptableObjectContainer container, ScriptableObject subObject)
         {
             if (subObject is ScriptableObjectContainer)
             {
                 Debug.LogError($"You cannot add a {nameof(ScriptableObjectContainer)} into another {nameof(ScriptableObjectContainer)}");
-                return;
+                return false;
             }
-
-            var serObj = new SerializedObject(subObject);
-            var serProp = serObj.FindProperty("m_ScriptableObjectContainer");
-            if (serProp != null)
-                serProp.objectReferenceValue = container;
-            serObj.ApplyModifiedProperties();
-            //serObj.ApplyModifiedPropertiesWithoutUndo();
 
             AssetDatabase.AddObjectToAsset(subObject, container);
             Sync(container);
+
+            return true;
         }
 
         public static void RemoveObject(ScriptableObjectContainer container, ScriptableObject subObject)
         {
-            Undo.DestroyObjectImmediate(subObject);
+            Undo.DestroyObjectImmediate(subObject); // TODO: this should not use Undo
             Sync(container);
         }
 
@@ -219,6 +247,8 @@ namespace Oddworm.EditorFramework
             }
 
             serObj.ApplyModifiedPropertiesWithoutUndo();
+
+            //container.GetType().GetMethod("OnValidate", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic).Invoke(container, null);
         }
     }
 }

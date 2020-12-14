@@ -132,6 +132,7 @@ namespace Oddworm.Framework
                 if (so == null)
                     continue;
 
+                // TODO: support multiple level of inheritance
                 foreach (var fieldInfo in so.GetType().GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.FlattenHierarchy))
                 {
                     var attribute = fieldInfo.GetCustomAttribute<SubAssetOwnerAttribute>(true);
