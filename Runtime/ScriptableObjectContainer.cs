@@ -122,6 +122,16 @@ namespace Oddworm.Framework
             }
         }
 
+        protected virtual void OnEnable()
+        {
+            // In case I need to implement something in OnEnable in the future, lets make it virtual.
+        }
+
+        protected virtual void OnDisable()
+        {
+            // In case I need to implement something in OnDisable in the future, lets make it virtual.
+        }
+
         protected virtual void OnValidate()
         {
 #if UNITY_EDITOR
