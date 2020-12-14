@@ -133,7 +133,7 @@ namespace Oddworm.Framework
 
                 foreach (var fieldInfo in so.GetType().GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.FlattenHierarchy))
                 {
-                    var attribute = fieldInfo.GetCustomAttribute<ScriptableObjectContainerAttribute>(true);
+                    var attribute = fieldInfo.GetCustomAttribute<SubAssetOwnerAttribute>(true);
                     if (attribute == null)
                         continue;
 
@@ -145,7 +145,7 @@ namespace Oddworm.Framework
                         valid = true;
                     if (!valid)
                     {
-                        Debug.LogError($"The field '{fieldInfo.Name}' in class '{so.GetType().FullName}' uses the [{nameof(ScriptableObjectContainerAttribute)}] attribute. The attribute can be used for fields of type '{nameof(ScriptableObject)}' only, but it uses '{fieldInfo.FieldType.FullName}' which does not inherit from '{nameof(ScriptableObject)}'.");
+                        Debug.LogError($"The field '{fieldInfo.Name}' in class '{so.GetType().FullName}' uses the [{nameof(SubAssetOwnerAttribute)}] attribute. The attribute can be used for fields of type '{nameof(ScriptableObject)}' only, but it uses '{fieldInfo.FieldType.FullName}' which does not inherit from '{nameof(ScriptableObject)}'.");
                         continue;
                     }
 
@@ -157,7 +157,7 @@ namespace Oddworm.Framework
                         valid = true;
                     if (!valid)
                     {
-                        Debug.LogError($"The field '{fieldInfo.Name}' in class '{so.GetType().FullName}' uses the [{nameof(ScriptableObjectContainerAttribute)}] attribute, but the container and field type are incompatible. The field is of type '{fieldInfo.FieldType.FullName}', but the container is of type '{GetType().FullName}', which is not a sub-class of '{fieldInfo.FieldType.FullName}'.");
+                        Debug.LogError($"The field '{fieldInfo.Name}' in class '{so.GetType().FullName}' uses the [{nameof(SubAssetOwnerAttribute)}] attribute, but the container and field type are incompatible. The field is of type '{fieldInfo.FieldType.FullName}', but the container is of type '{GetType().FullName}', which is not a sub-class of '{fieldInfo.FieldType.FullName}'.");
                         continue;
                     }
 
