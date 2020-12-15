@@ -133,42 +133,56 @@ namespace Oddworm.Framework
                     continue;
 
                 // TODO: support multiple level of inheritance
-                foreach (var fieldInfo in so.GetType().GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.FlattenHierarchy))
+                var soType = so.GetType();
+                var loopguard = 0;
+
+                do
                 {
-                    var attribute = fieldInfo.GetCustomAttribute<SubAssetOwnerAttribute>(true);
-                    if (attribute == null)
-                        continue;
-
-                    // Make sure the field is a reference to a ScriptableObject or derived type
-                    var valid = false;
-                    if (fieldInfo.FieldType == typeof(ScriptableObject))
-                        valid = true;
-                    if (fieldInfo.FieldType.IsSubclassOf(typeof(ScriptableObject)))
-                        valid = true;
-                    if (!valid)
+                    if (++loopguard > 64)
                     {
-                        Debug.LogError($"The field '{fieldInfo.Name}' in class '{so.GetType().FullName}' uses the [{nameof(SubAssetOwnerAttribute)}] attribute. The attribute can be used for fields of type '{nameof(ScriptableObject)}' only, but it uses '{fieldInfo.FieldType.FullName}' which does not inherit from '{nameof(ScriptableObject)}'.");
-                        continue;
+                        Debug.LogError($"Loopguard kicked in, detected more than 64 levels of inheritence?");
+                        break;
                     }
 
-                    // Make sure the field- and container type are compatible
-                    valid = false;
-                    if (fieldInfo.FieldType == GetType())
-                        valid = true;
-                    if (GetType().IsSubclassOf(fieldInfo.FieldType))
-                        valid = true;
-                    if (!valid)
+                    foreach (var fieldInfo in soType.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.FlattenHierarchy))
                     {
-                        Debug.LogError($"The field '{fieldInfo.Name}' in class '{so.GetType().FullName}' uses the [{nameof(SubAssetOwnerAttribute)}] attribute, but the container and field type are incompatible. The field is of type '{fieldInfo.FieldType.FullName}', but the container is of type '{GetType().FullName}', which is not a sub-class of '{fieldInfo.FieldType.FullName}'.");
-                        continue;
+                        var attribute = fieldInfo.GetCustomAttribute<SubAssetOwnerAttribute>(true);
+                        if (attribute == null)
+                            continue;
+
+                        // Make sure the field is a reference to a ScriptableObject or derived type
+                        var valid = false;
+                        if (fieldInfo.FieldType == typeof(ScriptableObject))
+                            valid = true;
+                        if (fieldInfo.FieldType.IsSubclassOf(typeof(ScriptableObject)))
+                            valid = true;
+                        if (!valid)
+                        {
+                            Debug.LogError($"The field '{fieldInfo.Name}' in class '{so.GetType().FullName}' uses the [{nameof(SubAssetOwnerAttribute)}] attribute. The attribute can be used for fields of type '{nameof(ScriptableObject)}' only, but it uses '{fieldInfo.FieldType.FullName}' which does not inherit from '{nameof(ScriptableObject)}'.");
+                            continue;
+                        }
+
+                        // Make sure the field- and container type are compatible
+                        valid = false;
+                        if (fieldInfo.FieldType == GetType())
+                            valid = true;
+                        if (GetType().IsSubclassOf(fieldInfo.FieldType))
+                            valid = true;
+                        if (!valid)
+                        {
+                            Debug.LogError($"The field '{fieldInfo.Name}' in class '{so.GetType().FullName}' uses the [{nameof(SubAssetOwnerAttribute)}] attribute, but the container and field type are incompatible. The field is of type '{fieldInfo.FieldType.FullName}', but the container is of type '{GetType().FullName}', which is not a sub-class of '{fieldInfo.FieldType.FullName}'.");
+                            continue;
+                        }
+
+                        if ((ScriptableObject)fieldInfo.GetValue(so) != this)
+                        {
+                            fieldInfo.SetValue(so, this);
+                            UnityEditor.EditorUtility.SetDirty(so);
+                        }
                     }
 
-                    if ((ScriptableObject)fieldInfo.GetValue(so) != this)
-                    {
-                        fieldInfo.SetValue(so, this);
-                        UnityEditor.EditorUtility.SetDirty(so);
-                    }
-                }
+                    soType = soType.BaseType;
+                } while (soType != null && soType != typeof(ScriptableObject));
             }
 #endif
         }
