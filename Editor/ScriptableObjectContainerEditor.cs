@@ -471,6 +471,12 @@ namespace Oddworm.EditorFramework
                     if (!type.IsSubclassOf(typeof(ScriptableObject)))
                         continue;
 
+                    if (type.IsAbstract)
+                        continue;
+
+                    if (type.IsGenericType)
+                        continue;
+
                     var isContainer = type == typeof(ScriptableObjectContainer);
                     if (type.IsSubclassOf(typeof(ScriptableObjectContainer)))
                         isContainer = true;

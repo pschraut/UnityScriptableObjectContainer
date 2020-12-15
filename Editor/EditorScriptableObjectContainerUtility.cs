@@ -91,12 +91,34 @@ namespace Oddworm.EditorFramework
         /// </remarks>
         public static bool CanAddObjectOfType(ScriptableObjectContainer container, System.Type type, bool displayDialog)
         {
+            if (type.IsAbstract)
+            {
+                if (displayDialog)
+                {
+                    var title = $"Can't add object!";
+                    var message = $"The object of type '{type.Name}' cannot be added, because the type is abstract.";
+                    EditorUtility.DisplayDialog(title, message, "OK");
+                }
+                return false;
+            }
+
+            if (type.IsGenericType)
+            {
+                if (displayDialog)
+                {
+                    var title = $"Can't add object!";
+                    var message = $"The object of type '{type.Name}' cannot be added, because the type is a Generic.";
+                    EditorUtility.DisplayDialog(title, message, "OK");
+                }
+                return false;
+            }
+
             if (!type.IsSubclassOf(typeof(ScriptableObject)))
             {
                 if (displayDialog)
                 {
-                    var title = $"Can't add a object!";
-                    var message = $"The object '{type.Name}' cannot be added, because it doesn't inherit from '{nameof(ScriptableObject)}'.";
+                    var title = $"Can't add object!";
+                    var message = $"The object of type '{type.Name}' cannot be added, because it doesn't inherit from '{nameof(ScriptableObject)}'.";
                     EditorUtility.DisplayDialog(title, message, "OK");
                 }
                 return false;
@@ -106,8 +128,8 @@ namespace Oddworm.EditorFramework
             {
                 if (displayDialog)
                 {
-                    var title = $"Can't add a container!";
-                    var message = $"The object '{type.Name}' cannot be added, because it inherits from '{nameof(ScriptableObjectContainer)}'.\n\nContainer objects can't be nested.";
+                    var title = $"Can't add object!";
+                    var message = $"The object of type '{type.Name}' cannot be added, because it inherits from '{nameof(ScriptableObjectContainer)}'.\n\nContainer objects can't be nested.";
                     EditorUtility.DisplayDialog(title, message, "OK");
                 }
                 return false;
