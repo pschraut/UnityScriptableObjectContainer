@@ -19,6 +19,7 @@ namespace Oddworm.EditorFramework
         Script m_MissingScriptObject = default; // If a sub-object is null, use the m_MissingScriptObject as object to draw the titlebar
         string m_SearchText = "";
         UnityEditor.IMGUI.Controls.SearchField m_SearchField = default;
+        Rect m_AddObjectButtonRect; // the layout rect of the "Add Object" button. We use it to display the popup menu at the proper position
 
         class Script : ScriptableObject { }
 
@@ -195,10 +196,14 @@ namespace Oddworm.EditorFramework
             using (new EditorGUILayout.HorizontalScope())
             {
                 GUILayout.FlexibleSpace();
+
                 if (GUILayout.Button("Add Object", "AC Button", GUILayout.Width(250)))
                 {
-                    ShowAddSubObjectPopup();
+                    ShowAddSubObjectPopup(m_AddObjectButtonRect);
                 }
+                if (Event.current.type == EventType.Repaint)
+                    m_AddObjectButtonRect = GUILayoutUtility.GetLastRect();
+
                 GUILayout.FlexibleSpace();
             }
         }
@@ -414,7 +419,7 @@ namespace Oddworm.EditorFramework
             public System.Type type;
         }
 
-        protected void ShowAddSubObjectPopup()
+        protected void ShowAddSubObjectPopup(Rect popupMenuRect)
         {
             var typeList = new List<System.Type>();
             var itemList = new List<PopupMenuItem>();
@@ -448,7 +453,7 @@ namespace Oddworm.EditorFramework
             {
                 menu.AddItem(new GUIContent(item.title), false, OnClick, item.type);
             }
-            menu.ShowAsContext();
+            menu.DropDown(popupMenuRect);
 
             void OnClick(object userData)
             {
