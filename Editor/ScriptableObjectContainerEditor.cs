@@ -2,6 +2,7 @@
 // ScriptableObject Container for Unity. Copyright (c) 2020 Peter Schraut (www.console-dev.de). See LICENSE.md
 // https://github.com/pschraut/UnityScriptableObjectContainer
 //
+#pragma warning disable IDE0002 // Name can be simplified
 #pragma warning disable IDE0040 // Add accessibility modifiers
 using System.Collections.Generic;
 using UnityEngine;
@@ -347,7 +348,7 @@ namespace Oddworm.EditorFramework
                 }
                 else
                 {
-                    if (EditorScriptableObjectContainerUtility.CanAddObjectOfType(container, objectReferences[0].GetType()))
+                    if (EditorScriptableObjectContainerUtility.CanAddObjectOfType(container, objectReferences[0].GetType(), true))
                     {
                         Undo.RegisterCompleteObjectUndo(this.target, "Add Object");
                         var newObj = ScriptableObject.CreateInstance(objectReferences[0].GetType());
@@ -539,7 +540,7 @@ namespace Oddworm.EditorFramework
             if (parent == null)
                 return;
 
-            if (!EditorScriptableObjectContainerUtility.CanAddObjectOfType(parent, type))
+            if (!EditorScriptableObjectContainerUtility.CanAddObjectOfType(parent, type, true))
                 return;
 
             Undo.IncrementCurrentGroup();

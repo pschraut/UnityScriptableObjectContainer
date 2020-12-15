@@ -83,13 +83,36 @@ namespace Oddworm.EditorFramework
         /// </summary>
         /// <param name="container">The container.</param>
         /// <param name="type">The type of the sub-asset.</param>
+        /// <param name="displayDialog">Whether to display an error dialog if the object can't be added.</param>
         /// <returns><c>true</c> when it can be added, <c>false</c> otherwise.</returns>
         /// <remarks>
         /// For example, if the container contains a sub-asset that uses the [<see cref="DisallowMultipleSubAssetAttribute"/>],
         /// it can't add another sub-asset of the same type.
         /// </remarks>
-        public static bool CanAddObjectOfType(ScriptableObjectContainer container, System.Type type)
+        public static bool CanAddObjectOfType(ScriptableObjectContainer container, System.Type type, bool displayDialog)
         {
+            if (!type.IsSubclassOf(typeof(ScriptableObject)))
+            {
+                if (displayDialog)
+                {
+                    var title = $"Can't add a object!";
+                    var message = $"The object '{type.Name}' cannot be added, because it doesn't inherit from '{nameof(ScriptableObject)}'.";
+                    EditorUtility.DisplayDialog(title, message, "OK");
+                }
+                return false;
+            }
+
+            if (type == typeof(ScriptableObjectContainer) || type.IsSubclassOf(typeof(ScriptableObjectContainer)))
+            {
+                if (displayDialog)
+                {
+                    var title = $"Can't add a container!";
+                    var message = $"The object '{type.Name}' cannot be added, because it inherits from '{nameof(ScriptableObjectContainer)}'.\n\nContainer objects can't be nested.";
+                    EditorUtility.DisplayDialog(title, message, "OK");
+                }
+                return false;
+            }
+
             var addedObj = container.GetObject(type);
             if (addedObj != null)
             {
@@ -98,9 +121,13 @@ namespace Oddworm.EditorFramework
                     var disallow = attr as DisallowMultipleSubAssetAttribute;
                     if (disallow != null)
                     {
-                        var title = $"Can't add the same object multiple times!";
-                        var message = $"The object '{type.Name}' cannot be added, because '{container.name}' already contains an object of the same type.\n\nRemove the [DisallowMultipleSubAsset] attribute from class '{type.Name}' to be able to add multiple objects of the same type.";
-                        EditorUtility.DisplayDialog(title, message, "OK");
+                        if (displayDialog)
+                        {
+                            var title = $"Can't add the same object multiple times!";
+                            var message = $"The object '{type.Name}' cannot be added, because '{container.name}' already contains an object of the same type.\n\nRemove the [DisallowMultipleSubAsset] attribute from class '{type.Name}' to be able to add multiple objects of the same type.";
+                            EditorUtility.DisplayDialog(title, message, "OK");
+                        }
+
                         return false;
                     }
                 }
@@ -158,11 +185,11 @@ namespace Oddworm.EditorFramework
 
         public static bool AddObject(ScriptableObjectContainer container, ScriptableObject subObject)
         {
-            if (subObject is ScriptableObjectContainer)
-            {
-                Debug.LogError($"You cannot add a {nameof(ScriptableObjectContainer)} into another {nameof(ScriptableObjectContainer)}");
+            if (container == null || subObject == null)
                 return false;
-            }
+
+            if (!CanAddObjectOfType(container, subObject.GetType(), false))
+                return false;
 
             AssetDatabase.AddObjectToAsset(subObject, container);
             Sync(container);
