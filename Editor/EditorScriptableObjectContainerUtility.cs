@@ -31,7 +31,7 @@ namespace Oddworm.EditorFramework
                     break;
                 }
 
-                foreach (var fieldInfo in type.GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.FlattenHierarchy))
+                foreach (var fieldInfo in type.GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance))
                 {
                     if (fieldInfo.FieldType != typeof(bool))
                         continue;
@@ -116,24 +116,50 @@ namespace Oddworm.EditorFramework
             var addedObj = container.GetObject(type);
             if (addedObj != null)
             {
-                foreach(var attr in type.GetCustomAttributes(true))
+                var disallow = GetCustomAttribute(type, typeof(DisallowMultipleSubAssetAttribute));
+                if (disallow != null)
                 {
-                    var disallow = attr as DisallowMultipleSubAssetAttribute;
-                    if (disallow != null)
+                    if (displayDialog)
                     {
-                        if (displayDialog)
-                        {
-                            var title = $"Can't add the same object multiple times!";
-                            var message = $"The object '{type.Name}' cannot be added, because '{container.name}' already contains an object of the same type.\n\nRemove the [DisallowMultipleSubAsset] attribute from class '{type.Name}' to be able to add multiple objects of the same type.";
-                            EditorUtility.DisplayDialog(title, message, "OK");
-                        }
-
-                        return false;
+                        var title = $"Can't add the same object multiple times!";
+                        var message = $"The object of type '{type.Name}' cannot be added, because '{container.name}' already contains an object of the same type.\n\nRemove the [DisallowMultipleSubAsset] attribute from class '{type.Name}' to be able to add multiple objects of the same type.";
+                        EditorUtility.DisplayDialog(title, message, "OK");
                     }
+
+                    return false;
                 }
             }
 
             return true;
+        }
+
+        /// <summary>
+        /// Gets the specified <paramref name="attributeType"/> in the specified <paramref name="type"/> or any of its base class.
+        /// </summary>
+        /// <param name="type">The type to look for the attribute.</param>
+        /// <param name="attributeType">The type of attribute to search for.</param>
+        /// <param name="inherit">true to search the types' inheritance chain to find the attributes; otherwise, false.</param>
+        /// <returns>The attribute on success, null otherwise.</returns>
+        static System.Attribute GetCustomAttribute(System.Type type, System.Type attributeType, bool inherit = true)
+        {
+            var loopguard = 0;
+
+            do
+            {
+                if (++loopguard > 64)
+                {
+                    Debug.LogError($"Loopguard kicked in, detected more than 64 levels of inheritence?");
+                    break;
+                }
+
+                var attribute = type.GetCustomAttribute(attributeType, inherit);
+                if (attribute != null)
+                    return attribute;
+
+                type = type.BaseType;
+            } while (type != null && type != typeof(UnityEngine.Object));
+
+            return null;
         }
 
         /// <summary>
