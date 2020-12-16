@@ -297,7 +297,7 @@ namespace Oddworm.EditorFramework
                 else
                 {
                     EditorGUI.BeginDisabledGroup(true);
-                    EditorGUI.Toggle(enabledRect, new GUIContent("", "Decorate a bool field with [SubAssetToggle] to toggle the enabled state."), true);
+                    EditorGUI.Toggle(enabledRect, new GUIContent("", $"Decorate a bool field with [{nameof(SubAssetToggleAttribute)}] to toggle the enabled state."), true);
                     EditorGUI.EndDisabledGroup();
                 }
             }
@@ -431,7 +431,7 @@ namespace Oddworm.EditorFramework
 
             foreach (var type in typeList)
             {
-                var itemName = type.Name;
+                var itemName = ObjectNames.NicifyVariableName(type.Name);
 
                 var attributes = type.GetCustomAttributes(typeof(CreateSubAssetMenuAttribute), true) as CreateSubAssetMenuAttribute[];
                 if (attributes != null && attributes.Length > 0 && !string.IsNullOrEmpty(attributes[0].menuName))
@@ -443,11 +443,13 @@ namespace Oddworm.EditorFramework
                 itemList.Add(item);
             }
 
+            // Sort menu items alphabetically
             itemList.Sort(delegate (PopupMenuItem a, PopupMenuItem b)
             {
                 return string.Compare(a.title, b.title, true);
             });
 
+            // Create and show the actual menu
             var menu = new GenericMenu();
             foreach (var item in itemList)
             {
@@ -455,6 +457,7 @@ namespace Oddworm.EditorFramework
             }
             menu.DropDown(popupMenuRect);
 
+            // Callback when a menu item is clicked
             void OnClick(object userData)
             {
                 var type = (System.Type)userData;
@@ -469,6 +472,7 @@ namespace Oddworm.EditorFramework
                 }
             }
 
+            // Get all types that are decorated with the CreateSubAssetMenu attribute.
             void GetScriptableObjectTypes(List<System.Type> result)
             {
                 foreach (var type in TypeCache.GetTypesWithAttribute<CreateSubAssetMenuAttribute>())
