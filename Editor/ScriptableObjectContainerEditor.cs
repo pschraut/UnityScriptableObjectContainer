@@ -287,6 +287,15 @@ namespace Oddworm.EditorFramework
             // Draw the toggle button
             if (!isMissing)
             {
+                // Hide the default enable button by Unity, because it's drawn as soon as an OnEnable
+                // method is implemented in a ScriptableObject. However, we want to show it only when
+                // the [SubAssetToggle] attribute is used.
+                var personalColor = new Color(0.7960785f, 0.7960785f, 0.7960785f, 1);
+                var proColor = new Color(0.2431373f, 0.2431373f, 0.2431373f, 1);
+                var color = EditorGUIUtility.isProSkin ? proColor : personalColor;
+                EditorGUI.DrawRect(enabledRect, color);
+
+
                 var fields = EditorScriptableObjectContainerUtility.GetObjectToggleFields((ScriptableObject)subObject);
                 var isEnabledPresent = fields.Count > 0;
 
@@ -308,13 +317,6 @@ namespace Oddworm.EditorFramework
                         Undo.FlushUndoRecordObjects();
                     }
                 }
-                else
-                {
-                    EditorGUI.BeginDisabledGroup(true);
-                    EditorGUI.Toggle(enabledRect, new GUIContent("", $"Decorate a bool field with [{nameof(SubAssetToggleAttribute)}] to toggle the enabled state."), true);
-                    EditorGUI.EndDisabledGroup();
-                }
-
             }
 
             var dropRect = titlebarRect;
