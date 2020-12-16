@@ -112,7 +112,7 @@ namespace Oddworm.EditorFramework
             if (subObject == null)
             {
                 EditorGUI.BeginDisabledGroup(true);
-                isExpanded = DrawSubObjectTitlebar(m_MissingScriptObject, isExpanded);
+                isExpanded = DrawSubObjectTitlebar(m_MissingScriptObject, isExpanded, false);
                 EditorGUI.EndDisabledGroup();
                 if (isExpanded)
                 {
@@ -128,7 +128,9 @@ namespace Oddworm.EditorFramework
                 {
                     var editor = GetOrCreateEditor(subObject);
 
-                    isExpanded = DrawSubObjectTitlebar(subObject, isExpanded);
+                    var isEditable = (subObject.hideFlags & HideFlags.NotEditable) == 0;
+                    EditorGUI.BeginDisabledGroup(!isEditable);
+                    isExpanded = DrawSubObjectTitlebar(subObject, isExpanded, isEditable);
                     if (isExpanded)
                     {
                         EditorGUI.indentLevel++;
@@ -137,6 +139,8 @@ namespace Oddworm.EditorFramework
 
                         EditorGUILayout.Separator();
                     }
+                    EditorGUI.EndDisabledGroup();
+
                 }
             }
 
@@ -208,7 +212,7 @@ namespace Oddworm.EditorFramework
             }
         }
 
-        protected bool DrawSubObjectTitlebar(Object subObject, bool foldout)
+        protected bool DrawSubObjectTitlebar(Object subObject, bool foldout, bool isEditable)
         {
             var e = Event.current;
             var isMissing = m_MissingScriptObject == subObject;
@@ -228,7 +232,7 @@ namespace Oddworm.EditorFramework
             enabledRect.y += 1;
             enabledRect.width = 21;
             enabledRect.height -= 4;
-            if (enabledRect.Contains(e.mousePosition) && (e.type != EventType.Layout && e.type != EventType.Repaint))
+            if (!isMissing && isEditable && enabledRect.Contains(e.mousePosition) && (e.type != EventType.Layout && e.type != EventType.Repaint))
             {
                 enabledHit = e.type == EventType.MouseUp;
                 e.Use();
@@ -236,17 +240,24 @@ namespace Oddworm.EditorFramework
 
 
             // Handle "button" input befpre EditorGUI.InspectorTitlebar, otherwise the titlebar swallows the input
-            if (!isMissing && buttonRect.Contains(e.mousePosition) && e.type == EventType.MouseDown && e.button == 0)
+            if (!isMissing && isEditable && buttonRect.Contains(e.mousePosition) && e.type == EventType.MouseDown && e.button == 0)
             {
                 e.Use();
 
                 var menu = new GenericMenu();
 
-                menu.AddItem(new GUIContent("Rename..."), false, delegate (object o)
+                if (isEditable)
                 {
-                    var wnd = EditorWindow.GetWindow<RenameDialog>();
-                    wnd.Show((Object)o);
-                }, subObject);
+                    menu.AddItem(new GUIContent("Rename..."), false, delegate (object o)
+                    {
+                        var wnd = EditorWindow.GetWindow<RenameDialog>();
+                        wnd.Show((Object)o);
+                    }, subObject);
+                }
+                else
+                {
+                    menu.AddDisabledItem(new GUIContent("Rename..."));
+                }
 
                 menu.AddSeparator("");
 
@@ -267,12 +278,15 @@ namespace Oddworm.EditorFramework
 
             var value = EditorGUI.InspectorTitlebar(titlebarRect, foldout, subObject, true);
 
+            // Draw options button
+            if (!isMissing && isEditable)
+            {
+                GUI.Button(buttonRect, EditorGUIUtility.IconContent("d__Popup"), "IconButton");
+            }
+
+            // Draw the toggle button
             if (!isMissing)
             {
-                // Draw the button, this is only for its visual appearance
-                GUI.Button(buttonRect, EditorGUIUtility.IconContent("d__Popup"), "IconButton");
-
-
                 var fields = EditorScriptableObjectContainerUtility.GetObjectToggleFields((ScriptableObject)subObject);
                 var isEnabledPresent = fields.Count > 0;
 
@@ -300,6 +314,7 @@ namespace Oddworm.EditorFramework
                     EditorGUI.Toggle(enabledRect, new GUIContent("", $"Decorate a bool field with [{nameof(SubAssetToggleAttribute)}] to toggle the enabled state."), true);
                     EditorGUI.EndDisabledGroup();
                 }
+
             }
 
             var dropRect = titlebarRect;
