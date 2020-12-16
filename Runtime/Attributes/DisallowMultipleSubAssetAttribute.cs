@@ -7,7 +7,7 @@ using System;
 namespace Oddworm.Framework
 {
     /// <summary>
-    /// Prevents ScriptableObjects of same type (or subtype) to be added more than once to a ScriptableObjectContainer.
+    /// Prevents ScriptableObjects of same type (or subtype) to be added more than once to a <see cref="ScriptableObjectContainer"/>.
     /// </summary>
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
     public sealed class DisallowMultipleSubAssetAttribute : Attribute

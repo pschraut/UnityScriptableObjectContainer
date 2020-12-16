@@ -7,8 +7,8 @@ using System;
 namespace Oddworm.Framework
 {
     /// <summary>
-    /// Use the [SubAssetOwner] attribute on a field in your sub-asset to let the editor
-    /// automatically assign a reference to its owner, the ScriptableObjectContainer.
+    /// Use the [<see cref="SubAssetOwnerAttribute"/>] on a field in your sub-asset to let the editor
+    /// automatically assign a reference to its owner, the <see cref="ScriptableObjectContainer"/>.
     /// </summary>
     /// <example>
     /// <code>
