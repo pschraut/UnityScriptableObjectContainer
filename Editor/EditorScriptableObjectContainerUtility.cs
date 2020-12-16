@@ -12,6 +12,8 @@ namespace Oddworm.EditorFramework
 {
     public static class EditorScriptableObjectContainerUtility
     {
+        static int s_FilterTypesStackOverflowGuard = 0;
+
         /// <summary>
         /// Gets all private and public fields in the specified <paramref name="subObject"/> that are decorated with the <c>[SubAssetToggle]</c> attribute.
         /// </summary>
@@ -152,20 +154,33 @@ namespace Oddworm.EditorFramework
                 }
             }
 
-            var typesList = new List<System.Type>();
-            typesList.Add(type);
-            FilterTypes(container, typesList);
-            var isTypeValid = typesList.Contains(type);
-            if (!isTypeValid)
+            // If CanAddObjectOfType is called from CanAddObjectOfType in its FilterTypes callback,
+            // don't run it to avoid stack overflow issues.
+            if (s_FilterTypesStackOverflowGuard == 0)
             {
-                if (displayDialog)
+                s_FilterTypesStackOverflowGuard++;
+                try
                 {
-                    var title = $"Can't add object!";
-                    var message = $"The object of type '{type.Name}' cannot be added, because '{container.name}' does not support this type.\n\nSupport for types can be filtered using the [{nameof(ScriptableObjectContainer.FilterTypesMethodAttribute)}] in that container.";
-                    EditorUtility.DisplayDialog(title, message, "OK");
-                }
+                    var typesList = new List<System.Type>();
+                    typesList.Add(type);
+                    FilterTypes(container, typesList);
+                    var isTypeValid = typesList.Contains(type);
+                    if (!isTypeValid)
+                    {
+                        if (displayDialog)
+                        {
+                            var title = $"Can't add object!";
+                            var message = $"The object of type '{type.Name}' cannot be added, because '{container.name}' does not support this type.\n\nSupport for types can be filtered using the [{nameof(ScriptableObjectContainer.FilterTypesMethodAttribute)}] in that container.";
+                            EditorUtility.DisplayDialog(title, message, "OK");
+                        }
 
-                return false;
+                        return false;
+                    }
+                }
+                finally
+                {
+                    s_FilterTypesStackOverflowGuard--;
+                }
             }
 
             return true;
