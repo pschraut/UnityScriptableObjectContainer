@@ -442,7 +442,7 @@ namespace Oddworm.EditorFramework
             GetScriptableObjectTypes(typeList);
 
             foreach (var t in targets)
-                FilterScriptableObjectTypes(t.GetType(), typeList);
+                EditorScriptableObjectContainerUtility.FilterTypes(t as ScriptableObjectContainer, typeList);
 
             foreach (var type in typeList)
             {
@@ -510,59 +510,6 @@ namespace Oddworm.EditorFramework
                 }
             }
 
-            void FilterScriptableObjectTypes(System.Type containerType, List<System.Type> list)
-            {
-                foreach (var method in TypeCache.GetMethodsWithAttribute<ScriptableObjectContainer.FilterTypesMethodAttribute>())
-                {
-                    if (method.DeclaringType != containerType)
-                        continue;
-
-                    if (!VerifyFilterTypesMethod(method))
-                    {
-                        Debug.LogError($"The method '{method.Name}' in type '{method.DeclaringType.FullName}' is decorated with the '{typeof(ScriptableObjectContainer.FilterTypesMethodAttribute).FullName}' attribute, but the method signature is incorrect. The method signature must be 'static void {method.Name}(System.Collections.Generic.List<System.Type> types)' instead.");
-                        continue;
-                    }
-
-                    method.Invoke(null, new[] { list });
-                }
-
-                // Remove all non ScriptableObjects that might have been added during the filter process
-                for (var n = list.Count - 1; n >= 0; --n)
-                {
-                    if (list[n] == null)
-                    {
-                        list.RemoveAt(n);
-                        continue;
-                    }
-
-                    if (!list[n].IsSubclassOf(typeof(ScriptableObject)))
-                    {
-                        list.RemoveAt(n);
-                        continue;
-                    }
-                }
-            }
-
-            bool VerifyFilterTypesMethod(System.Reflection.MethodInfo method)
-            {
-                if (!method.IsStatic)
-                    return false;
-
-                // Accept method with one argument only.
-                var parameters = method.GetParameters();
-                if (parameters == null || parameters.Length != 1)
-                    return false;
-
-                // Accept List<System.Type> as parameter type only.
-                if (parameters[0].ParameterType != typeof(List<System.Type>))
-                    return false;
-
-                // Accept void return type only.
-                if (method.ReturnType != typeof(void))
-                    return false;
-
-                return true;
-            }
         }
 
         protected void CreateSubObject(ScriptableObjectContainer parent, System.Type type)

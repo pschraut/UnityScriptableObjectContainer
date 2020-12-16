@@ -21,9 +21,49 @@ namespace Oddworm.Framework
         [HideInInspector]
         [SerializeField] ScriptableObject[] m_SubObjects = new ScriptableObject[0];
 
+        /// <summary>
+        /// The FilterTypesMethodAttribute is used to filter what sub-asset types a container supports.
+        /// </summary>
+        /// <example>
+        /// <code>
+        /// using System;
+        /// using System.Collections.Generic;
+        ///
+        /// public class MyContainer : Oddworm.Framework.ScriptableObjectContainer
+        /// {
+        ///     [FilterTypesMethod]
+        ///     static void MyFilterTypesMethod(List<Type> types) // Can be static or non-static
+        ///     {
+        ///         for (var n = types.Count - 1; n >= 0; --n)
+        ///         {
+        ///             var isValidType = false;
+        ///
+        ///             //if (types[n] == typeof(MyBaseClass))
+        ///             //    isValidType = true;
+        ///
+        ///             if (types[n].IsSubclassOf(typeof(MySubAssetBaseClass)))
+        ///                 isValidType = true;
+        ///
+        ///             if (!isValidType)
+        ///                 types.RemoveAt(n);
+        ///         }
+        ///     }
+        /// }
+        /// </code>
+        /// </example>
         [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
         public sealed class FilterTypesMethodAttribute : Attribute
-        { }
+        {
+            /// <summary>
+            /// Override the order in which methods with this attribute are called.
+            /// Smaller order is called first. The default order is 0.
+            /// </summary>
+            public int order
+            {
+                get;
+                set;
+            }
+        }
 
         /// <summary>
         /// Gets the object of the specified type.

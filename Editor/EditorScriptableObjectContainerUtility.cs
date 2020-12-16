@@ -144,7 +144,7 @@ namespace Oddworm.EditorFramework
                     if (displayDialog)
                     {
                         var title = $"Can't add the same object multiple times!";
-                        var message = $"The object of type '{type.Name}' cannot be added, because '{container.name}' already contains an object of the same type.\n\nRemove the [DisallowMultipleSubAsset] attribute from class '{type.Name}' to be able to add multiple objects of the same type.";
+                        var message = $"The object of type '{type.Name}' cannot be added, because '{container.name}' already contains an object of the same type.\n\nRemove the [{nameof(DisallowMultipleSubAssetAttribute)}] from class '{type.Name}' to be able to add multiple objects of the same type.";
                         EditorUtility.DisplayDialog(title, message, "OK");
                     }
 
@@ -152,7 +152,122 @@ namespace Oddworm.EditorFramework
                 }
             }
 
+            var typesList = new List<System.Type>();
+            typesList.Add(type);
+            FilterTypes(container, typesList);
+            var isTypeValid = typesList.Contains(type);
+            if (!isTypeValid)
+            {
+                if (displayDialog)
+                {
+                    var title = $"Can't add object!";
+                    var message = $"The object of type '{type.Name}' cannot be added, because '{container.name}' does not support this type.\n\nSupport for types can be filtered using the [{nameof(ScriptableObjectContainer.FilterTypesMethodAttribute)}] in that container.";
+                    EditorUtility.DisplayDialog(title, message, "OK");
+                }
+
+                return false;
+            }
+
             return true;
+        }
+
+        public static void FilterTypes(ScriptableObjectContainer container, List<System.Type> typesList)
+        {
+            if (container == null)
+            {
+                typesList.Clear();
+                return;
+            }
+
+            var methods = new List<MethodInfo>();
+            var containerType = container.GetType();
+            foreach (var method in TypeCache.GetMethodsWithAttribute<ScriptableObjectContainer.FilterTypesMethodAttribute>())
+            {
+                if (method.DeclaringType != containerType)
+                    continue;
+
+                if (!VerifyFilterTypesMethod(method))
+                {
+                    Debug.LogError($"The method '{method.Name}' in type '{method.DeclaringType.FullName}' is decorated with the '{typeof(ScriptableObjectContainer.FilterTypesMethodAttribute).FullName}' attribute, but the method signature is incorrect. The method signature must be 'void {method.Name}(System.Collections.Generic.List<System.Type> types)' instead and can be either static or not.");
+                    continue;
+                }
+
+                methods.Add(method);
+            }
+
+            methods.Sort(delegate (MethodInfo a, MethodInfo b)
+            {
+                var attr0 = a.GetCustomAttribute<ScriptableObjectContainer.FilterTypesMethodAttribute>(true);
+                var attr1 = b.GetCustomAttribute<ScriptableObjectContainer.FilterTypesMethodAttribute>(true);
+
+                // If the order is identical, use the full name for sorting.
+                // This is to make execution order stable (as long as name doesn't change)
+                if (attr0.order == attr1.order)
+                {
+                    var name0 = $"{a.DeclaringType.FullName}.{a.Name}";
+                    var name1 = $"{b.DeclaringType.FullName}.{b.Name}";
+
+                    return string.Compare(name0, name1, System.StringComparison.Ordinal);
+                }
+
+                return attr0.order.CompareTo(attr1.order);
+            });
+
+            // Call the FilterTypes method
+            for (var n=0; n<methods.Count; ++n)
+            {
+                var method = methods[n];
+
+                if (method.IsStatic)
+                    method.Invoke(null, new[] { typesList });
+                else
+                    method.Invoke(container, new[] { typesList });
+            }
+
+            // Remove all non ScriptableObjects that might have been added during the filter process
+            RemoveNonScriptableObjects();
+
+            void RemoveNonScriptableObjects()
+            {
+                for (var n = typesList.Count - 1; n >= 0; --n)
+                {
+                    if (typesList[n] == null)
+                    {
+                        typesList.RemoveAt(n);
+                        continue;
+                    }
+
+                    if (!typesList[n].IsSubclassOf(typeof(ScriptableObject)))
+                    {
+                        typesList.RemoveAt(n);
+                        continue;
+                    }
+                }
+            }
+
+            bool VerifyFilterTypesMethod(System.Reflection.MethodInfo method)
+            {
+                if (method.IsAbstract)
+                    return false;
+
+                //if (!method.IsStatic)
+                //    return false;
+
+                // Accept method with one argument only.
+                var parameters = method.GetParameters();
+                if (parameters == null || parameters.Length != 1)
+                    return false;
+
+                // Accept List<System.Type> as parameter type only.
+                if (parameters[0].ParameterType != typeof(List<System.Type>))
+                    return false;
+
+                // Accept void return type only.
+                if (method.ReturnType != typeof(void))
+                    return false;
+
+                return true;
+            }
         }
 
         /// <summary>
