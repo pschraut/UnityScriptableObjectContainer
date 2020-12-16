@@ -281,7 +281,7 @@ namespace Oddworm.EditorFramework
             // Draw options button
             if (!isMissing && isEditable)
             {
-                GUI.Button(buttonRect, EditorGUIUtility.IconContent("d__Popup"), "IconButton");
+                GUI.Button(buttonRect, EditorGUIUtility.IconContent("_Popup"), "IconButton");
             }
 
             // Draw the toggle button
