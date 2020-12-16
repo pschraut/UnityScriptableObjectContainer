@@ -446,6 +446,25 @@ namespace Oddworm.EditorFramework
             foreach (var t in targets)
                 EditorScriptableObjectContainerUtility.FilterTypes(t as ScriptableObjectContainer, typeList);
 
+            // Remove unsupported types from the "Add Object" menu, where unsupported here
+            // also means types that can't be added because of [DisallowMultipleSubAsset] for example.
+            for (var n= typeList.Count-1; n>=0; --n)
+            {
+                var remove = false;
+
+                foreach (var t in targets)
+                {
+                    if (!EditorScriptableObjectContainerUtility.CanAddObjectOfType(t as ScriptableObjectContainer, typeList[n], false))
+                    {
+                        remove = true;
+                        break;
+                    }
+                }
+
+                if (remove)
+                    typeList.RemoveAt(n);
+            }
+
             foreach (var type in typeList)
             {
                 var itemName = ObjectNames.NicifyVariableName(type.Name);
@@ -472,6 +491,10 @@ namespace Oddworm.EditorFramework
             {
                 menu.AddItem(new GUIContent(item.title), false, OnClick, item.type);
             }
+
+            if (menu.GetItemCount() == 0)
+                menu.AddDisabledItem(new GUIContent("No object available"));
+
             menu.DropDown(popupMenuRect);
 
             // Callback when a menu item is clicked
