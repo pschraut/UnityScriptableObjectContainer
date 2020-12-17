@@ -170,7 +170,7 @@ namespace Oddworm.EditorFramework
                         if (displayDialog)
                         {
                             var title = $"Can't add object!";
-                            var message = $"The object of type '{type.Name}' cannot be added, because '{container.name}' does not support this type.\n\nSupport for types can be filtered using the [{nameof(ScriptableObjectContainer.FilterTypesMethodAttribute)}] in that container.";
+                            var message = $"The object of type '{type.Name}' cannot be added, because '{container.name}' does not support this type.\n\nSupport for types can be filtered using the [{nameof(FilterSubAssetTypesMethodAttribute)}] in that container.";
                             EditorUtility.DisplayDialog(title, message, "OK");
                         }
 
@@ -196,14 +196,14 @@ namespace Oddworm.EditorFramework
 
             var methods = new List<MethodInfo>();
             var containerType = container.GetType();
-            foreach (var method in TypeCache.GetMethodsWithAttribute<ScriptableObjectContainer.FilterTypesMethodAttribute>())
+            foreach (var method in TypeCache.GetMethodsWithAttribute<FilterSubAssetTypesMethodAttribute>())
             {
                 if (method.DeclaringType != containerType)
                     continue;
 
                 if (!VerifyFilterTypesMethod(method))
                 {
-                    Debug.LogError($"The method '{method.Name}' in type '{method.DeclaringType.FullName}' is decorated with the '{typeof(ScriptableObjectContainer.FilterTypesMethodAttribute).FullName}' attribute, but the method signature is incorrect. The method signature must be 'void {method.Name}(System.Collections.Generic.List<System.Type> types)' instead and can be either static or not.");
+                    Debug.LogError($"The method '{method.Name}' in type '{method.DeclaringType.FullName}' is decorated with the '{typeof(FilterSubAssetTypesMethodAttribute).FullName}' attribute, but the method signature is incorrect. The method signature must be 'void {method.Name}(System.Collections.Generic.List<System.Type> types)' instead and can be either static or not.");
                     continue;
                 }
 
@@ -212,8 +212,8 @@ namespace Oddworm.EditorFramework
 
             methods.Sort(delegate (MethodInfo a, MethodInfo b)
             {
-                var attr0 = a.GetCustomAttribute<ScriptableObjectContainer.FilterTypesMethodAttribute>(true);
-                var attr1 = b.GetCustomAttribute<ScriptableObjectContainer.FilterTypesMethodAttribute>(true);
+                var attr0 = a.GetCustomAttribute<FilterSubAssetTypesMethodAttribute>(true);
+                var attr1 = b.GetCustomAttribute<FilterSubAssetTypesMethodAttribute>(true);
 
                 // If the order is identical, use the full name for sorting.
                 // This is to make execution order stable (as long as name doesn't change)
