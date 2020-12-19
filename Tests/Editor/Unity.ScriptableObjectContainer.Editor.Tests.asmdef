@@ -1,0 +1,21 @@
+{
+    "name": "Unity.ScriptableObjectContainer.Editor.Tests",
+    "references": [
+        "GUID:f60f765a85ae24643aff9de06832a458",
+        "GUID:e6711ee95ee562f4499d2c95c4dadef2"
+    ],
+    "optionalUnityReferences": [
+        "TestAssemblies"
+    ],	
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
