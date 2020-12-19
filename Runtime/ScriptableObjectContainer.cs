@@ -21,14 +21,16 @@ namespace Oddworm.Framework
         [HideInInspector]
         [SerializeField] ScriptableObject[] m_SubObjects = new ScriptableObject[0];
 
+        static List<object> s_TempCache = new List<object>();
+
         /// <summary>
-        /// Gets the object of the specified type.
+        /// Gets the first object of the specified type.
         /// </summary>
         /// <param name="type">The type of object to retrieve. The type must derive from ScriptableObject or must be an interface.</param>
-        /// <returns>The object on success, null otherwise.</returns>
-        /// <exception cref="System.ArgumentNullException">Throws an ArgumentNullException if the specified type is null.</exception>
-        /// <exception cref="System.ArgumentException">Throws an ArgumentException if the specified type does not derive from ScriptableObject or isn't an interface.</exception>
-        public ScriptableObject GetObject(System.Type type)
+        /// <returns>The object on success, <c>null</c> otherwise.</returns>
+        /// <exception cref="ArgumentNullException">Throws an ArgumentNullException if the specified type is null.</exception>
+        /// <exception cref="ArgumentException">Throws an ArgumentException if the specified type does not derive from ScriptableObject or isn't an interface.</exception>
+        public ScriptableObject GetObject(Type type)
         {
             ThrowIfInvalidType(type, nameof(GetObject));
 
@@ -47,12 +49,12 @@ namespace Oddworm.Framework
         }
 
         /// <summary>
-        /// Gets the object of the specified type.
+        /// Gets the first object of the specified type.
         /// </summary>
         /// <typeparam name="T">The type of object to retrieve. The type must derive from ScriptableObject or must be an interface.</typeparam>
-        /// <returns>The object on success, null otherwise.</returns>
-        /// <exception cref="System.ArgumentNullException">Throws an ArgumentNullException if the specified type is null.</exception>
-        /// <exception cref="System.ArgumentException">Throws an ArgumentException if the specified type does not derive from ScriptableObject or isn't an interface.</exception>
+        /// <returns>The object on success,<c>null</c> otherwise.</returns>
+        /// <exception cref="ArgumentNullException">Throws an ArgumentNullException if the specified type is null.</exception>
+        /// <exception cref="ArgumentException">Throws an ArgumentException if the specified type does not derive from ScriptableObject or isn't an interface.</exception>
         public T GetObject<T>() where T : class
         {
             ThrowIfInvalidType(typeof(T), nameof(GetObject));
@@ -68,12 +70,40 @@ namespace Oddworm.Framework
         }
 
         /// <summary>
+        /// Gets the first object of the specified type.
+        /// </summary>
+        /// <param name="type">The type of object to retrieve. The type must derive from ScriptableObject or must be an interface.</param>
+        /// <param name="result">The output argument that will contain the object or null.</param>
+        /// <returns><c>true</c> if the object is found, <c>false</c> otherwise.</returns>
+        /// <exception cref="ArgumentNullException">Throws an ArgumentNullException if the specified type is null.</exception>
+        /// <exception cref="ArgumentException">Throws an ArgumentException if the specified type does not derive from ScriptableObject or isn't an interface.</exception>
+        public bool TryGetObject(Type type, out object result)
+        {
+            result = GetObject(type);
+            return result != null;
+        }
+
+        /// <summary>
+        /// Gets the first object of the specified type.
+        /// </summary>
+        /// <typeparam name="T">The type of object to retrieve. The type must derive from ScriptableObject or must be an interface.</typeparam>
+        /// <param name="result">The output argument that will contain the object or null.</param>
+        /// <returns><c>true</c> if the object is found, <c>false</c> otherwise.</returns>
+        /// <exception cref="ArgumentNullException">Throws an ArgumentNullException if the specified type is null.</exception>
+        /// <exception cref="ArgumentException">Throws an ArgumentException if the specified type does not derive from ScriptableObject or isn't an interface.</exception>
+        public bool TryGetObject<T>(out T result) where T : class
+        {
+            result = GetObject<T>();
+            return result != null;
+        }
+
+        /// <summary>
         /// Gets all objects of the specified type.
         /// </summary>
         /// <typeparam name="T">The type of object to retrieve. The type must derive from ScriptableObject or must be an interface.</typeparam>
         /// <param name="results">The list where all objects are added to.</param>
-        /// <exception cref="System.ArgumentNullException">Throws an ArgumentNullException if the specified type is null.</exception>
-        /// <exception cref="System.ArgumentException">Throws an ArgumentException if the specified type does not derive from ScriptableObject or isn't an interface.</exception>
+        /// <exception cref="ArgumentNullException">Throws an ArgumentNullException if the specified type is null.</exception>
+        /// <exception cref="ArgumentException">Throws an ArgumentException if the specified type does not derive from ScriptableObject or isn't an interface.</exception>
         public void GetObjects<T>(List<T> results) where T : class
         {
             ThrowIfInvalidType(typeof(T), nameof(GetObjects));
@@ -89,11 +119,33 @@ namespace Oddworm.Framework
         /// <summary>
         /// Gets all objects of the specified type.
         /// </summary>
+        /// <typeparam name="T">The type of object to retrieve. The type must derive from ScriptableObject or must be an interface.</typeparam>
+        /// <returns>
+        /// A newly allocated array that contains references to the objects, or an empty array if no objects could be found.
+        /// </returns>
+        /// <exception cref="ArgumentNullException">Throws an ArgumentNullException if the specified type is null.</exception>
+        /// <exception cref="ArgumentException">Throws an ArgumentException if the specified type does not derive from ScriptableObject or isn't an interface.</exception>
+        public T[] GetObjects<T>() where T : class
+        {
+            s_TempCache.Clear();
+            GetObjects(typeof(T), s_TempCache);
+
+            var result = new T[s_TempCache.Count];
+            for (var n = 0; n < s_TempCache.Count; ++n)
+                result[n] = s_TempCache[n] as T;
+
+            s_TempCache.Clear();
+            return result;
+        }
+
+        /// <summary>
+        /// Gets all objects of the specified type.
+        /// </summary>
         /// <param name="type">The type of object to retrieve. The type must derive from ScriptableObject or must be an interface.</param>
         /// <param name="results">The list where all objects are added to.</param>
-        /// <exception cref="System.ArgumentNullException">Throws an ArgumentNullException if the specified type is null.</exception>
-        /// <exception cref="System.ArgumentException">Throws an ArgumentException if the specified type does not derive from ScriptableObject or isn't an interface.</exception>
-        public void GetObjects(List<ScriptableObject> results, System.Type type)
+        /// <exception cref="ArgumentNullException">Throws an ArgumentNullException if the specified type is null.</exception>
+        /// <exception cref="ArgumentException">Throws an ArgumentException if the specified type does not derive from ScriptableObject or isn't an interface.</exception>
+        public void GetObjects(Type type, List<object> results)
         {
             ThrowIfInvalidType(type, nameof(GetObjects));
 
@@ -107,6 +159,28 @@ namespace Oddworm.Framework
                 if (subObjectType == type || subObjectType.IsSubclassOf(type))
                     results.Add(subObject);
             }
+        }
+
+        /// <summary>
+        /// Gets all objects of the specified type.
+        /// </summary>
+        /// <param name="type">The type of object to retrieve. The type must derive from ScriptableObject or must be an interface.</param>
+        /// <returns>
+        /// A newly allocated array that contains references to the objects, or an empty array if no objects could be found.
+        /// </returns>
+        /// <exception cref="ArgumentNullException">Throws an ArgumentNullException if the specified type is null.</exception>
+        /// <exception cref="ArgumentException">Throws an ArgumentException if the specified type does not derive from ScriptableObject or isn't an interface.</exception>
+        public object[] GetObjects(Type type)
+        {
+            s_TempCache.Clear();
+            GetObjects(type, s_TempCache);
+
+            var result = new object[s_TempCache.Count];
+            for (var n = 0; n < s_TempCache.Count; ++n)
+                result[n] = s_TempCache[n];
+
+            s_TempCache.Clear();
+            return result;
         }
 
         protected virtual void OnEnable()
