@@ -2,7 +2,10 @@
 // ScriptableObject Container for Unity. Copyright (c) 2020 Peter Schraut (www.console-dev.de). See LICENSE.md
 // https://github.com/pschraut/UnityScriptableObjectContainer
 //
-#pragma warning disable IDE0019 // Use pattern matching
+#pragma warning disable IDE0019 // Use Pattern matching
+#pragma warning disable IDE0079 // Remove unnecessary suppression
+#pragma warning disable IDE0040 // Add accessibility modifiers
+#pragma warning disable IDE0051 // Remove unused private members
 #pragma warning disable IDE1006 // Naming Styles
 using System;
 using System.Collections.Generic;
@@ -21,7 +24,7 @@ namespace Oddworm.Framework
         [HideInInspector]
         [SerializeField] ScriptableObject[] m_SubObjects = new ScriptableObject[0];
 
-        static List<object> s_TempCache = new List<object>();
+        static readonly List<object> s_TempCache = new List<object>();
 
         /// <summary>
         /// Gets the first object of the specified type.

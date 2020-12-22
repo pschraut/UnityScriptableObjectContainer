@@ -2,8 +2,14 @@
 // ScriptableObject Container for Unity. Copyright (c) 2020 Peter Schraut (www.console-dev.de). See LICENSE.md
 // https://github.com/pschraut/UnityScriptableObjectContainer
 //
-#pragma warning disable IDE0002 // Name can be simplified
+#pragma warning disable IDE0079 // Remove unnecessary suppression
 #pragma warning disable IDE0040 // Add accessibility modifiers
+#pragma warning disable IDE0051 // Remove unused private members
+#pragma warning disable IDE1006 // Naming Styles
+#pragma warning disable IDE0002 // Name can be simplified
+#pragma warning disable IDE0019 // Use Pattern matching
+#pragma warning disable IDE0017 // Object initialization can be simplified
+#pragma warning disable IDE0062 // Local function can be made static
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
@@ -16,7 +22,7 @@ namespace Oddworm.EditorFramework
     [CustomEditor(typeof(ScriptableObjectContainer), editorForChildClasses: true, isFallback = false)]
     public class ScriptableObjectContainerEditor : Editor
     {
-        List<Editor> m_Editors = new List<Editor>();
+        readonly List<Editor> m_Editors = new List<Editor>();
         Script m_MissingScriptObject = default; // If a sub-object is null, use the m_MissingScriptObject as object to draw the titlebar
         string m_SearchText = "";
         UnityEditor.IMGUI.Controls.SearchField m_SearchField = default;
