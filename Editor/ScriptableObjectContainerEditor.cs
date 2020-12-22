@@ -274,6 +274,13 @@ namespace Oddworm.EditorFramework
                     ExtractSubObject((ScriptableObject)o);
                 }, subObject);
 
+                menu.AddSeparator("");
+
+                menu.AddItem(new GUIContent("Duplicate"), false, delegate (object o)
+                {
+                    DuplicateSubObject((ScriptableObject)o);
+                }, subObject);
+
                 menu.ShowAsContext();
             }
 
@@ -385,6 +392,38 @@ namespace Oddworm.EditorFramework
                 serializedObject.UpdateIfRequiredOrScript();
                 GUIUtility.ExitGUI();
             }
+        }
+
+        void DuplicateSubObject(ScriptableObject source)
+        {
+            Undo.IncrementCurrentGroup();
+
+            var newObj = ScriptableObject.CreateInstance(source.GetType());
+            Undo.RegisterCreatedObjectUndo(newObj, "Create");
+
+            Undo.RegisterCompleteObjectUndo(this.target, "Duplicate Object");
+
+            var container = (ScriptableObjectContainer)serializedObject.targetObject;
+
+            ScriptableObject insertAbove = null;
+            var objs = container.GetObjects<ScriptableObject>();
+            for (var n = 0; n < objs.Length; ++n)
+            {
+                if (objs[n] == source && n + 1 < objs.Length)
+                {
+                    insertAbove = objs[n + 1];
+                    break;
+                }
+            }
+
+            EditorScriptableObjectContainerUtility.AddObject(container, newObj);
+            EditorUtility.CopySerialized(source, newObj);
+            newObj.name += " (Clone)";
+
+            EditorScriptableObjectContainerUtility.MoveObject(container, newObj, insertAbove);
+
+            Undo.FlushUndoRecordObjects();
+            EditorUtility.SetDirty(this.target);
         }
 
         Editor GetOrCreateEditor(Object t)
