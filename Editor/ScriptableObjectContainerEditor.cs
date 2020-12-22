@@ -9,6 +9,7 @@ using UnityEngine;
 using UnityEditor;
 using Oddworm.Framework;
 using System.Reflection;
+using UnityEditor.Presets;
 
 namespace Oddworm.EditorFramework
 {
@@ -551,6 +552,13 @@ namespace Oddworm.EditorFramework
             Undo.RegisterCreatedObjectUndo(subObject, "Create");
 
             Undo.RegisterCompleteObjectUndo(parent, "Create");
+
+            foreach (var preset in Preset.GetDefaultPresetsForObject(subObject))
+            {
+                if (preset != null && preset.IsValid() && preset.CanBeAppliedTo(subObject))
+                    preset.ApplyTo(subObject);
+            }
+
             EditorScriptableObjectContainerUtility.AddObject(parent, subObject);
             Undo.FlushUndoRecordObjects();
             EditorUtility.SetDirty(parent);
