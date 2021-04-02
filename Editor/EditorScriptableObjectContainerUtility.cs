@@ -19,10 +19,10 @@ namespace Oddworm.EditorFramework
         static int s_FilterTypesStackOverflowGuard = 0;
 
         /// <summary>
-        /// Gets all private and public fields in the specified <paramref name="subObject"/> that are decorated with the <c>[SubAssetToggle]</c> attribute.
+        /// Gets all private and public fields in the specified <paramref name="subObject"/> that are decorated with the <see cref="SubAssetToggleAttribute"/>.
         /// </summary>
         /// <param name="subObject">The sub-asset.</param>
-        /// <returns>A list of fields decorated with [<see cref="SubAssetToggleAttribute"/>].</returns>
+        /// <returns>A list of fields decorated with <see cref="SubAssetToggleAttribute"/>.</returns>
         public static List<FieldInfo> GetObjectToggleFields(ScriptableObject subObject)
         {
             var result = new List<FieldInfo>();
@@ -54,11 +54,11 @@ namespace Oddworm.EditorFramework
         }
 
         /// <summary>
-        /// Gets if any of the specified <paramref name="toggleFields"/> is <c>true</c>.
+        /// Gets if any of the specified <paramref name="toggleFields"/> is true.
         /// </summary>
         /// <param name="subObject">The sub-asset.</param>
         /// <param name="toggleFields">The result of <see cref="GetObjectToggleFields(ScriptableObject)"/></param>
-        /// <returns><c>true</c> if any field is <c>true</c>, <c>false</c> otherwise.</returns>
+        /// <returns>true if any field is true, false otherwise.</returns>
         public static bool GetObjectToggleValue(ScriptableObject subObject, List<FieldInfo> toggleFields)
         {
             foreach (var fieldInfo in toggleFields)
@@ -85,12 +85,12 @@ namespace Oddworm.EditorFramework
         }
 
         /// <summary>
-        /// Gets whether a sub-asset of the specied <paramref name="type"/> can be asset to the <paramref name="container"/>.
+        /// Gets whether a sub-asset of the specied <paramref name="type"/> can be added to the <paramref name="container"/>.
         /// </summary>
         /// <param name="container">The container.</param>
         /// <param name="type">The type of the sub-asset.</param>
         /// <param name="displayDialog">Whether to display an error dialog if the object can't be added.</param>
-        /// <returns><c>true</c> when it can be added, <c>false</c> otherwise.</returns>
+        /// <returns>true when it can be added, false otherwise.</returns>
         /// <remarks>
         /// For example, if the container contains a sub-asset that uses the [<see cref="DisallowMultipleSubAssetAttribute"/>],
         /// it can't add another sub-asset of the same type.
@@ -319,7 +319,7 @@ namespace Oddworm.EditorFramework
         }
 
         /// <summary>
-        /// Moves the specified moveObject above the specified targetObject.
+        /// Moves the specified <paramref name="moveObject"/> above the specified <paramref name="targetObject"/>.
         /// </summary>
         /// <param name="container">The container.</param>
         /// <param name="moveObject">The sub-asset to move in the Inspector above or below another sub-asset.</param>
