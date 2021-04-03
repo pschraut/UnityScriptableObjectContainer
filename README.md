@@ -1,16 +1,16 @@
 # ScriptableObject Container for Unity
 
-The ScriptableObject in Unity is a very powerful concept that has many different applications.
+The [ScriptableObject](https://docs.unity3d.com/Manual/class-ScriptableObject.html) type in Unity is a very powerful concept that has many different applications.
 It lacks one feature that'd skyrocket its usefulness for me and that's being able
 to add "Components" to it. 
-Unity allows to add "Components" through code, but they didn't expose this functionality to the Inspector.
+Unity allows to add "Components" to a ScriptableObject asset through code, but they didn't expose functionality to do it through the Inspector.
 
 The ScriptableObject Container package attempts to solve this.
 It allows to work with ScriptableObjects in a similar way how you work with Components and GameObjects.
 
 You add a ScriptableObject to a ```ScriptableObjectContainer``` via the Inspector in a similar way how you add a Component to a GameObject.
 
-On the scripting side, you get a ScriptableObject from the ```ScriptableObjectContainer``` in a similar way how you get a Component from a GameObject.
+On the scripting side, you get the ScriptableObject from the ```ScriptableObjectContainer``` in a similar way how you get a Component from a GameObject.
 
 | ScriptableObjectContainer  |     GameObject      |
 |----------|---------------|
@@ -18,6 +18,8 @@ On the scripting side, you get a ScriptableObject from the ```ScriptableObjectCo
 | ```void GetObjects(Type type, List<T> results)``` | ```void GetComponents(Type type, List<T> results)``` |
 | ```T GetObject<T>()``` | ```T GetComponent<T>``` |
 | ```void GetObjects<T>(List<T> results)``` | ```void GetComponents(List<T> results)``` |
+
+You can think of a ScriptableObjectContainer as "GameObject" and its sub-assets (or objects) would be the Components on a GameObject.
 
 # Installation
 
@@ -66,5 +68,36 @@ to avoid cluttering your project with things you most likely don't need.
 
 
 # Examples
-TODO
 
+## CreateSubAssetMenuAttribute
+
+A ScriptableObjectContainer shows an "Add Object" button in the Inspector,
+much like a GameObject shows a "Add Component" button, which allows to add
+objects derived from ScriptableObject to the container.
+
+In order to add a ScriptableObject to the "Add Object" menu, you need to
+add the ```CreateSubAssetMenuAttribute``` to the ScriptableObject type.
+```CSharp
+[CreateSubAssetMenu(menuName = "Fruit")]
+class Fruit : ScriptableObject
+{
+    // ...
+}
+```
+
+## DisallowMultipleSubAssetAttribute
+
+If you want to prevent to add the same ScriptableObject type (or subtype)
+more than once to the same container, you can use the
+```DisallowMultipleSubAssetAttribute```.
+
+This works similar to how you use Unity's
+ [DisallowMultipleComponentAttribute](https://docs.unity3d.com/ScriptReference/DisallowMultipleComponent.html)
+to prevent a MonoBehaviour of same type (or subtype) to be added more than once to a GameObject.
+```CSharp
+[DisallowMultipleSubAsset]
+class Fruit : ScriptableObject
+{
+    // ...
+}
+```
