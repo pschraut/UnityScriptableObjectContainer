@@ -77,7 +77,7 @@ namespace Oddworm.Framework
         /// </summary>
         /// <param name="type">The type of object to retrieve. The type must derive from ScriptableObject or must be an interface.</param>
         /// <param name="result">The output argument that will contain the object or null.</param>
-        /// <returns><c>true</c> if the object is found, <c>false</c> otherwise.</returns>
+        /// <returns>true if the object is found, false otherwise.</returns>
         /// <exception cref="ArgumentNullException">Throws an ArgumentNullException if the specified type is null.</exception>
         /// <exception cref="ArgumentException">Throws an ArgumentException if the specified type does not derive from ScriptableObject or isn't an interface.</exception>
         public bool TryGetObject(Type type, out object result)
@@ -91,7 +91,7 @@ namespace Oddworm.Framework
         /// </summary>
         /// <typeparam name="T">The type of object to retrieve. The type must derive from ScriptableObject or must be an interface.</typeparam>
         /// <param name="result">The output argument that will contain the object or null.</param>
-        /// <returns><c>true</c> if the object is found, <c>false</c> otherwise.</returns>
+        /// <returns>true if the object is found, false otherwise.</returns>
         /// <exception cref="ArgumentNullException">Throws an ArgumentNullException if the specified type is null.</exception>
         /// <exception cref="ArgumentException">Throws an ArgumentException if the specified type does not derive from ScriptableObject or isn't an interface.</exception>
         public bool TryGetObject<T>(out T result) where T : class
@@ -198,6 +198,15 @@ namespace Oddworm.Framework
 
         protected virtual void OnValidate()
         {
+            ProcessSubAssetOwnerAttribute();
+        }
+
+        /// <summary>
+        /// Check each sub asset if any of its fields uses the <see cref="SubAssetOwnerAttribute"/> and
+        /// assign that field to this ScriptableObjectContainer.
+        /// </summary>
+        void ProcessSubAssetOwnerAttribute()
+        {
 #if UNITY_EDITOR
             for (var n = 0; n < m_SubObjects.Length; ++n)
             {
@@ -212,7 +221,7 @@ namespace Oddworm.Framework
                 {
                     if (++loopguard > 64)
                     {
-                        Debug.LogError($"Loopguard kicked in, detected more than 64 levels of inheritence?");
+                        Debug.LogError($"Loopguard kicked in, detected more than 64 levels of inheritence?", this);
                         break;
                     }
 
@@ -230,7 +239,7 @@ namespace Oddworm.Framework
                             valid = true;
                         if (!valid)
                         {
-                            Debug.LogError($"The field '{fieldInfo.Name}' in class '{so.GetType().FullName}' uses the [{nameof(SubAssetOwnerAttribute)}]. The attribute can be used for fields of type '{nameof(ScriptableObject)}' only, but it uses '{fieldInfo.FieldType.FullName}' which does not inherit from '{nameof(ScriptableObject)}'.");
+                            Debug.LogError($"The field '{fieldInfo.Name}' in class '{so.GetType().FullName}' uses the [{nameof(SubAssetOwnerAttribute)}]. The attribute can be used for fields of type '{nameof(ScriptableObject)}' only, but it uses '{fieldInfo.FieldType.FullName}' which does not inherit from '{nameof(ScriptableObject)}'.", this);
                             continue;
                         }
 
@@ -242,7 +251,7 @@ namespace Oddworm.Framework
                             valid = true;
                         if (!valid)
                         {
-                            Debug.LogError($"The field '{fieldInfo.Name}' in class '{so.GetType().FullName}' uses the [{nameof(SubAssetOwnerAttribute)}], but the container and field type are incompatible. The field is of type '{fieldInfo.FieldType.FullName}', but the container is of type '{GetType().FullName}', which is not a sub-class of '{fieldInfo.FieldType.FullName}'.");
+                            Debug.LogError($"The field '{fieldInfo.Name}' in class '{so.GetType().FullName}' uses the [{nameof(SubAssetOwnerAttribute)}], but the container and field type are incompatible. The field is of type '{fieldInfo.FieldType.FullName}', but the container is of type '{GetType().FullName}', which is not a sub-class of '{fieldInfo.FieldType.FullName}'.", this);
                             continue;
                         }
 
