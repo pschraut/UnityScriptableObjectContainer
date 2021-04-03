@@ -10,7 +10,9 @@ using Oddworm.Framework;
 
 namespace Oddworm.EditorFramework.Tests.ScriptableObjectContainerTest
 {
+#if SCRIPTABLEOBJECTCONTAINER_ENABLE_TESTS
     [CreateSubAssetMenu(menuName = "ScriptableObjectContainer Tests/Fruit")]
+#endif
     internal class Fruit : ScriptableObject
     {
         public int number;

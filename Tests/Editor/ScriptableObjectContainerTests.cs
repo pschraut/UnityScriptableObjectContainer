@@ -13,7 +13,7 @@ using Oddworm.Framework;
 
 namespace Oddworm.EditorFramework.Tests.ScriptableObjectContainerTest
 {
-
+#if SCRIPTABLEOBJECTCONTAINER_ENABLE_TESTS
     class ScriptableObjectContainerTests
     {
         const string k_PackageTestsFolderAssetGUID = "f07a2a99328f0c74fa791bb5d36d1960";
@@ -209,4 +209,5 @@ namespace Oddworm.EditorFramework.Tests.ScriptableObjectContainerTest
             return pipelineAssets;
         }
     }
+#endif // SCRIPTABLEOBJECTCONTAINER_ENABLE_TESTS
 }

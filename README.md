@@ -49,6 +49,21 @@ This allows you to retrieve these sub-assets through code, similar how you work 
 Beside the sub-assets array, the ScriptableObjectContainer does not contain much more code
 that's required in a build. It implements OnValidate when running in the Unity Editor to keep the sub-asset array synced, that's it.
 
+# Test Runner integration
+
+The ScriptableObjectContainer package comes with several tests that run in 
+[Unity's Test Runner](https://docs.unity3d.com/Packages/com.unity.test-framework@latest).
+
+The tests can be enabled through the 
+```SCRIPTABLEOBJECTCONTAINER_ENABLE_TESTS``` scripting define symbol.
+Add this scripting define symbol to the Player Settings and they appear in
+Unity's Test Runner.
+
+Additionally to the new tests in the Test Runner window,
+it adds various context menu items to create test assets,
+which is the reason why it's disabled by default, basically 
+to avoid cluttering your project with things you most likely don't need.
+
 
 # Examples
 TODO
