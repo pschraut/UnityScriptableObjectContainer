@@ -101,3 +101,43 @@ class Fruit : ScriptableObject
     // ...
 }
 ```
+
+## SubAssetOwnerAttribute
+
+If you need a reference to the ScriptableObjectContainer inside your ScriptableObject
+sub-asset, you can use the ```SubAssetOwnerAttribute``` for the system to automatically
+setup the reference for you. The code that sets up references runs in the editor only,
+thus there are no runtime penalties for using it.
+```CSharp
+class Fruit : ScriptableObject
+{
+    [SubAssetOwner]
+    [SerializeField] ScriptableObjectContainer m_Container;
+}
+```
+If you know that a sub-asset lives inside a specific container type only,
+you can also use that container type.
+```CSharp
+class Fruit : ScriptableObject
+{
+    [SubAssetOwner]
+    [SerializeField] Basket m_Container; // The Basket type must inherit from ScriptableObjectContainer
+}
+```
+
+## SubAssetToggleAttribute
+
+Unity does not support the concept of enabling and disabling a ScriptableObject,
+but I often found that I want to support this in whatever specific use-case I have.
+Using the ```SubAssetToggleAttribute``` on a ```bool``` field causes the
+ScriptableObjectContainer editor to display a toggle (checkbox) like you can find
+in Components on a GameObject.
+```CSharp
+class Fruit : ScriptableObject
+{
+    [SubAssetToggle]
+    [SerializeField] bool m_IsEnabled;
+}
+```
+It's worth to note that you can't ```m_Enabled``` as field name, since
+it conflicts with a field that Unity implements too, but seemingly Unity isn't using it.
