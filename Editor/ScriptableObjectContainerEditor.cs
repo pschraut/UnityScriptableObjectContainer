@@ -347,12 +347,16 @@ namespace Oddworm.EditorFramework
             if (!targetRect.Contains(e.mousePosition))
                 return;
 
+            // Support drag/drop for a single container only
+            if (targets.Length != 1)
+                return;
+
             // Support drag&drop of a single object only
             var objectReferences = DragAndDrop.objectReferences;
             if (objectReferences.Length != 1)
                 return;
 
-            // Do not support to drag&drop ScriptableObjects, but NOT a container inside another container
+            // Do support to drag&drop ScriptableObjects, but NOT a container inside another container
             var dragObj = objectReferences[0] as ScriptableObject;
             if (dragObj == null || dragObj is ScriptableObjectContainer)
                 return;
@@ -361,12 +365,8 @@ namespace Oddworm.EditorFramework
             if (targetObject is Script || objectReferences[0] is Script)
                 return;
 
-            // Support drag/drop for a single container only
-            if (targets.Length != 1)
-                return;
 
             // Support drag&drop inside the same conainer only
-            //var dropEditor = FindEditor(targetObject);
             var fromSelf = FindEditor(dragObj) != null;
             DragAndDrop.visualMode = fromSelf ? DragAndDropVisualMode.Move : DragAndDropVisualMode.Copy;
             GUI.Box(targetRect, GUIContent.none, "InsertionMarker");
@@ -620,7 +620,8 @@ namespace Oddworm.EditorFramework
 
             Undo.IncrementCurrentGroup();
             Undo.RegisterCompleteObjectUndo(parent, "Delete");
-            EditorScriptableObjectContainerUtility.RemoveObject(parent, subObject);
+            Undo.DestroyObjectImmediate(subObject);
+            EditorScriptableObjectContainerUtility.Sync(parent);
             Undo.FlushUndoRecordObjects();
             EditorUtility.SetDirty(parent);
         }

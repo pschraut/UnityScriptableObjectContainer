@@ -19,7 +19,8 @@ namespace Oddworm.EditorFramework
         static int s_FilterTypesStackOverflowGuard = 0;
 
         /// <summary>
-        /// Gets all private and public fields in the specified <paramref name="subObject"/> that are decorated with the <see cref="SubAssetToggleAttribute"/>.
+        /// Gets all private and public fields in the specified <paramref name="subObject"/>
+        /// that are decorated with the <see cref="SubAssetToggleAttribute"/>.
         /// </summary>
         /// <param name="subObject">The sub-asset.</param>
         /// <returns>A list of fields decorated with <see cref="SubAssetToggleAttribute"/>.</returns>
@@ -54,7 +55,7 @@ namespace Oddworm.EditorFramework
         }
 
         /// <summary>
-        /// Gets if any of the specified <paramref name="toggleFields"/> is true.
+        /// Gets if any of the specified <paramref name="toggleFields"/> value is set to true.
         /// </summary>
         /// <param name="subObject">The sub-asset.</param>
         /// <param name="toggleFields">The result of <see cref="GetObjectToggleFields(ScriptableObject)"/></param>
@@ -190,6 +191,11 @@ namespace Oddworm.EditorFramework
             return true;
         }
 
+        /// <summary>
+        /// Removes all items from the <paramref name="typesList"/> that the <paramref name="container"/> does not support.
+        /// </summary>
+        /// <param name="container">The container.</param>
+        /// <param name="typesList">A list of types.</param>
         public static void FilterTypes(ScriptableObjectContainer container, List<System.Type> typesList)
         {
             if (container == null)
@@ -360,11 +366,27 @@ namespace Oddworm.EditorFramework
             serContainer.ApplyModifiedPropertiesWithoutUndo();
         }
 
+        /// <summary>
+        /// Finds the SerializedProperty that is used to serialize the sub-assets array.
+        /// </summary>
+        /// <param name="container">The container.</param>
+        /// <returns>The SerializedProperty.</returns>
         public static SerializedProperty FindObjectsProperty(SerializedObject container)
         {
             return container.FindProperty("m_SubObjects");
         }
 
+        /// <summary>
+        /// Adds the specified <paramref name="subObject"/> to the specified <paramref name="container"/>.
+        /// </summary>
+        /// <param name="container">The container.</param>
+        /// <param name="subObject">The object to add as sub-asset.</param>
+        /// <returns>true on success, false otherwise.</returns>
+        /// <remarks>
+        /// In order to remove an object from a container, you would use:
+        /// UnityEditor.Undo.DestroyObjectImmediate(subObject);
+        /// EditorScriptableObjectContainerUtility.Sync(container);
+        /// </remarks>
         public static bool AddObject(ScriptableObjectContainer container, ScriptableObject subObject)
         {
             if (container == null || subObject == null)
@@ -377,12 +399,6 @@ namespace Oddworm.EditorFramework
             Sync(container);
 
             return true;
-        }
-
-        public static void RemoveObject(ScriptableObjectContainer container, ScriptableObject subObject)
-        {
-            Undo.DestroyObjectImmediate(subObject); // TODO: this should not use Undo
-            Sync(container);
         }
 
         /// <summary>
