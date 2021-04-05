@@ -29,9 +29,9 @@ namespace Oddworm.EditorFramework.Tests.ScriptableObjectContainerTest
         [Test]
         public void Test_FindContainerAsset()
         {
-            Assert.IsNotNull(FindContainerAsset("Test_FruitContainer_1"));
-            Assert.IsNotNull(FindContainerAsset("Test_FruitContainer_2"));
-            Assert.IsNotNull(FindContainerAsset("Test_FruitContainer_3"));
+            Assert.IsNotNull(FindContainerAsset("Test_001"));
+            Assert.IsNotNull(FindContainerAsset("Test_002"));
+            Assert.IsNotNull(FindContainerAsset("Test_003"));
             Assert.IsNotNull(FindContainerAsset("Test_004"));
             Assert.IsNotNull(FindContainerAsset("Test_005"));
         }
@@ -39,7 +39,7 @@ namespace Oddworm.EditorFramework.Tests.ScriptableObjectContainerTest
         [Test]
         public void Test_FruitContainer_1_GetObject()
         {
-            var container = FindContainerAsset("Test_FruitContainer_1");
+            var container = FindContainerAsset("Test_001");
             Assert.IsNotNull(container.GetObject(typeof(Fruit)));
             Assert.IsNotNull(container.GetObject<Fruit>());
 
@@ -50,7 +50,7 @@ namespace Oddworm.EditorFramework.Tests.ScriptableObjectContainerTest
         [Test]
         public void Test_FruitContainer_1_GetObjects()
         {
-            var container = FindContainerAsset("Test_FruitContainer_1");
+            var container = FindContainerAsset("Test_001");
             Assert.IsNotNull(container.GetObjects(typeof(Fruit)));
             Assert.IsNotNull(container.GetObjects<Fruit>());
 
@@ -68,7 +68,7 @@ namespace Oddworm.EditorFramework.Tests.ScriptableObjectContainerTest
         [Test]
         public void Test_FruitContainer_2_GetObject()
         {
-            var container = FindContainerAsset("Test_FruitContainer_2");
+            var container = FindContainerAsset("Test_002");
             Assert.IsNotNull(container.GetObject(typeof(Fruit)));
             Assert.IsNotNull(container.GetObject<Fruit>());
 
@@ -79,7 +79,7 @@ namespace Oddworm.EditorFramework.Tests.ScriptableObjectContainerTest
         [Test]
         public void Test_FruitContainer_2_GetObjects()
         {
-            var container = FindContainerAsset("Test_FruitContainer_2");
+            var container = FindContainerAsset("Test_002");
 
             Test(container.GetObjects(typeof(Fruit)));
             Test(container.GetObjects<Fruit>());
@@ -113,7 +113,7 @@ namespace Oddworm.EditorFramework.Tests.ScriptableObjectContainerTest
         [Test]
         public void Test_FruitContainer_3_GetObjects()
         {
-            var container = FindContainerAsset("Test_FruitContainer_3");
+            var container = FindContainerAsset("Test_003");
 
             Test(container.GetObjects(typeof(Fruit)), 3, 0);
             Test(container.GetObjects<Fruit>(), 3, 0);

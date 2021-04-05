@@ -23,7 +23,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ac9dad67ca91bfb4a956cdf7f6473a2b, type: 3}
-  m_Name: Test_FruitContainer_1
+  m_Name: Test_001
   m_EditorClassIdentifier: 
   m_SubObjects:
   - {fileID: -2245045354878169941}
