@@ -87,6 +87,8 @@ scripting define symbol to remove the context-menuitem.
 
 ## CreateSubAssetMenuAttribute
 
+[![](http://img.youtube.com/vi/SWw3CWeXV6g/0.jpg)](http://www.youtube.com/watch?v=SWw3CWeXV6g "")
+
 A ScriptableObjectContainer shows an "Add Object" button in the Inspector,
 much like a GameObject shows a "Add Component" button, which allows to add
 objects derived from ScriptableObject to the container.
@@ -150,6 +152,8 @@ in the same class or class inheritance chain and each of these methods is being 
 
 ## DisallowMultipleSubAssetAttribute
 
+[![](http://img.youtube.com/vi/QnjTcPqM0sg/0.jpg)](http://www.youtube.com/watch?v=QnjTcPqM0sg "")
+
 If you want to prevent to add the same ScriptableObject type (or subtype)
 more than once to the same container, you can use the
 ```DisallowMultipleSubAssetAttribute```.
@@ -166,6 +170,8 @@ class Fruit : ScriptableObject
 ```
 
 ## SubAssetOwnerAttribute
+
+[![](http://img.youtube.com/vi/Ex9FQ3yXhBw/0.jpg)](http://www.youtube.com/watch?v=Ex9FQ3yXhBw "")
 
 If you need a reference to the ScriptableObjectContainer inside your ScriptableObject
 sub-asset, you can use the ```SubAssetOwnerAttribute``` for the system to automatically
@@ -190,6 +196,8 @@ class Fruit : ScriptableObject
 ```
 
 ## SubAssetToggleAttribute
+
+[![](http://img.youtube.com/vi/tMfqDenY1pc/0.jpg)](http://www.youtube.com/watch?v=tMfqDenY1pc "")
 
 Unity does not support the concept of enabling and disabling a ScriptableObject,
 but I often found myselfing wanting a simple way to expose an "enabled" toggle
