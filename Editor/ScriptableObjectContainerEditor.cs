@@ -64,11 +64,10 @@ namespace Oddworm.EditorFramework
             serializedObject.UpdateIfRequiredOrScript();
 
             EditorGUILayout.Separator();
+            PushIndentLevel();
             DrawSearchField();
-
-            EditorGUI.indentLevel++;
             DrawContainerGUI();
-            EditorGUI.indentLevel--;
+            PopIndentLevel();
 
             EditorGUILayout.Separator();
 
@@ -96,14 +95,29 @@ namespace Oddworm.EditorFramework
             }
         }
 
+        // EditorGUI.indentLevel++ doesn't work for some controls, thus I implemented
+        // the push/pop indent level methods.
+        void PushIndentLevel()
+        {
+            const float k_IndentPerLevel = 15;
+
+            EditorGUILayout.BeginHorizontal();
+            GUILayoutUtility.GetRect(0, 0, GUILayout.Width(k_IndentPerLevel));
+            EditorGUILayout.BeginVertical();
+        }
+
+        void PopIndentLevel()
+        {
+            EditorGUILayout.EndVertical();
+            EditorGUILayout.EndHorizontal();
+        }
+
         protected void DrawSearchField()
         {
             if (m_SearchField == null)
                 m_SearchField = new UnityEditor.IMGUI.Controls.SearchField();
 
-            EditorGUI.indentLevel++;
             m_SearchText = m_SearchField.OnToolbarGUI(m_SearchText);
-            EditorGUI.indentLevel--;
         }
 
         /// <summary>
@@ -123,9 +137,9 @@ namespace Oddworm.EditorFramework
                 EditorGUI.EndDisabledGroup();
                 if (isExpanded)
                 {
-                    EditorGUI.indentLevel++;
+                    PushIndentLevel();
                     EditorGUILayout.HelpBox("The associated script could not be loaded.\nPlease fix any compile errors and assign a valid script.", MessageType.Warning);
-                    EditorGUI.indentLevel--;
+                    PopIndentLevel();
                     EditorGUILayout.Separator();
                 }
             }
@@ -140,9 +154,9 @@ namespace Oddworm.EditorFramework
                     isExpanded = DrawSubObjectTitlebar(subObject, isExpanded, isEditable);
                     if (isExpanded)
                     {
-                        EditorGUI.indentLevel++;
+                        PushIndentLevel();
                         editor.OnInspectorGUI();
-                        EditorGUI.indentLevel--;
+                        PopIndentLevel();
 
                         EditorGUILayout.Separator();
                     }
