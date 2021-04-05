@@ -418,12 +418,14 @@ namespace Oddworm.EditorFramework
         {
             Undo.IncrementCurrentGroup();
 
+            var container = (ScriptableObjectContainer)serializedObject.targetObject;
+            if (!EditorScriptableObjectContainerUtility.CanAddObjectOfType(container, source.GetType(), true))
+                return;
+
             var newObj = ScriptableObject.CreateInstance(source.GetType());
             Undo.RegisterCreatedObjectUndo(newObj, "Create");
-
             Undo.RegisterCompleteObjectUndo(this.target, "Duplicate Object");
 
-            var container = (ScriptableObjectContainer)serializedObject.targetObject;
 
             ScriptableObject insertAbove = null;
             var objs = container.GetObjects<ScriptableObject>();
