@@ -39,17 +39,23 @@ Something like "ScriptableObject Container by Peter Schraut" or "Thanks to Peter
 
 # How it works
 
-The package introduces the type ```ScriptableObjectContainer``` that derives from ScriptableObject.
+The package introduces the type ```ScriptableObjectContainer``` that 
+derives from ScriptableObject.
 
-A custom inspector implements the magic that allows to add a ScriptableObject as sub-asset, to remove such sub-asset as 
-well as to change properties of such sub-asset through the Inspector. 
-The ScriptableObjectContainer Inspector attempts to mimic the look and feel of Unity's built-in Inspector when working with Components.
+A custom inspector implements the magic that allows to add a ScriptableObject as sub-asset, 
+to remove such sub-asset as well as to change properties of such sub-asset through the Inspector. 
+The ScriptableObjectContainer Inspector attempts to mimic the look and feel of Unity's built-in 
+Inspector when working with Components.
 
-The ScriptableObjectContainer itself is rather light-weight. It contains an array with references to its sub-assets.
-This allows you to retrieve these sub-assets through code, similar how you work with the GameObject.GetComponent and GameObject.GetComponents methods.
+The ScriptableObjectContainer itself is rather light-weight. It contains an array with 
+references to its sub-assets.
+This allows you to retrieve these sub-assets through code, similar how you work with the 
+GameObject.GetComponent and GameObject.GetComponents methods.
 
-Beside the sub-assets array, the ScriptableObjectContainer does not contain much more code
-that's required in a build. It implements OnValidate when running in the Unity Editor to keep the sub-asset array synced, that's it.
+Beside the sub-assets array and its corresponding getter methods,
+the ScriptableObjectContainer does not contain more code that's required in a build. 
+It implements ```OnValidate``` to update fields in sub-assets that use the 
+```SubAssetOwnerAttribute``` attribute, this code runs in the editor only.
 
 # Test Runner integration
 
@@ -58,10 +64,10 @@ The ScriptableObjectContainer package comes with several tests that run in
 
 The tests can be enabled through the 
 ```SCRIPTABLEOBJECTCONTAINER_ENABLE_TESTS``` scripting define symbol.
-Add this scripting define symbol to the Player Settings and they appear in
+Add this scripting define symbol to the Player Settings and the tests appear in
 Unity's Test Runner.
 
-Additionally to the new tests in the Test Runner window,
+Additionally to the tests in the Test Runner window,
 it adds various context menu items to create test assets,
 which is the reason why it's disabled by default, basically 
 to avoid cluttering your project with things you most likely don't need.
@@ -85,6 +91,53 @@ class Fruit : ScriptableObject
 }
 ```
 
+## FilterSubAssetTypesMethodAttribute
+
+If you want to allow certain ScriptableObjects to be added to the conainter
+only, you can use ```FilterSubAssetTypesMethodAttribute```.
+ 
+The ```types``` list is initialized with all ScriptableObject types that use the
+```CreateSubAssetMenuAttribute```. Means you can add any ScriptableObject
+that uses the ```CreateSubAssetMenuAttribute``` to any container by default.
+
+The ```types``` list is then passed to the method decorated with the
+```FilterSubAssetTypesMethodAttribute``` and you implement code that
+filters the list to those types that you want to support for that particular
+container. The method can be a static- or instance method.
+
+Example 1
+```CSharp
+public class MyContainer : ScriptableObjectContainer
+{
+    [FilterSubAssetTypesMethod]
+    static void MyFilterSubAssetTypesMethod(List<Type> types) // Can be static or non-static
+    {
+        types.Clear();
+        types.Add(typeof(MySubAssetBaseClass));
+    }
+}
+```
+
+Example 2
+```CSharp
+public class MyContainer : ScriptableObjectContainer
+{
+    [FilterSubAssetTypesMethod]
+    static void MyFilterSubAssetTypesMethod(List<Type> types) // Can be static or non-static
+    {
+        for (var n = types.Count - 1; n >= 0; --n)
+        {
+            if (!types[n].IsSubclassOf(typeof(MySubAssetBaseClass)))
+                types.RemoveAt(n);
+        }
+    }
+}
+```
+
+You can implement one or multiple methods with the ```CreateSubAssetMenuAttribute```
+in the same class or class inheritance chain and each of these methods is being called.
+
+
 ## DisallowMultipleSubAssetAttribute
 
 If you want to prevent to add the same ScriptableObject type (or subtype)
@@ -107,7 +160,7 @@ class Fruit : ScriptableObject
 If you need a reference to the ScriptableObjectContainer inside your ScriptableObject
 sub-asset, you can use the ```SubAssetOwnerAttribute``` for the system to automatically
 setup the reference for you. The code that sets up references runs in the editor only,
-thus there are no runtime penalties for using it.
+thus there is no performance penalty in a build.
 ```CSharp
 class Fruit : ScriptableObject
 {
@@ -116,21 +169,24 @@ class Fruit : ScriptableObject
 }
 ```
 If you know that a sub-asset lives inside a specific container type only,
-you can also use that container type.
+you can also use the specific container type.
 ```CSharp
 class Fruit : ScriptableObject
 {
     [SubAssetOwner]
-    [SerializeField] Basket m_Container; // The Basket type must inherit from ScriptableObjectContainer
+    [SerializeField] Basket m_Container; // The Basket type must inherit
+                                         // from ScriptableObjectContainer
 }
 ```
 
 ## SubAssetToggleAttribute
 
 Unity does not support the concept of enabling and disabling a ScriptableObject,
-but I often found that I want to support this in whatever specific use-case I have.
+but I often found myselfing wanting a simple way to expose an "enabled" toggle
+for whatever use-case I have.
+
 Using the ```SubAssetToggleAttribute``` on a ```bool``` field causes the
-ScriptableObjectContainer editor to display a toggle (checkbox) like you can find
+ScriptableObjectContainer Inspector to display a toggle (checkbox) like you can find
 in Components on a GameObject.
 ```CSharp
 class Fruit : ScriptableObject
