@@ -32,6 +32,8 @@ namespace Oddworm.EditorFramework.Tests.ScriptableObjectContainerTest
             Assert.IsNotNull(FindContainerAsset("Test_FruitContainer_1"));
             Assert.IsNotNull(FindContainerAsset("Test_FruitContainer_2"));
             Assert.IsNotNull(FindContainerAsset("Test_FruitContainer_3"));
+            Assert.IsNotNull(FindContainerAsset("Test_004"));
+            Assert.IsNotNull(FindContainerAsset("Test_005"));
         }
 
         [Test]
@@ -153,6 +155,24 @@ namespace Oddworm.EditorFramework.Tests.ScriptableObjectContainerTest
                 Assert.AreEqual(expectedFruitNumber, fruitNumber);
                 Assert.AreEqual(expectedMeatNumber, meatNumber);
             }
+        }
+
+        [Test]
+        public void Test_004_CanAddObjectOfType()
+        {
+            var container = FindContainerAsset("Test_004");
+
+            var canAdd = EditorScriptableObjectContainerUtility.CanAddObjectOfType(container, typeof(SingleFruit), false);
+            Assert.IsFalse(canAdd);
+        }
+
+        [Test]
+        public void Test_005_CanAddObjectOfType()
+        {
+            var container = FindContainerAsset("Test_005");
+
+            var canAdd = EditorScriptableObjectContainerUtility.CanAddObjectOfType(container, typeof(SingleFruit), false);
+            Assert.IsTrue(canAdd);
         }
 
         ScriptableObjectContainer FindContainerAsset(string assetName)
