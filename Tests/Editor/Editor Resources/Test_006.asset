@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4186eab6ae73578419a08549f3290894, type: 3}
+  m_Name: Test_006
+  m_EditorClassIdentifier: 
+  m_SubObjects:
+  - {fileID: 1793690072751849465}
+--- !u!114 &1793690072751849465
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: de0186abe4dc5ce47a14f83bad33e571, type: 3}
+  m_Name: SubAssetWithToggle
+  m_EditorClassIdentifier: 
+  m_MyToggle: 1

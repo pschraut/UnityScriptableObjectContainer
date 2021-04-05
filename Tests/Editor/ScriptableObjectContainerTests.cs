@@ -34,10 +34,13 @@ namespace Oddworm.EditorFramework.Tests.ScriptableObjectContainerTest
             Assert.IsNotNull(FindContainerAsset("Test_003"));
             Assert.IsNotNull(FindContainerAsset("Test_004"));
             Assert.IsNotNull(FindContainerAsset("Test_005"));
+            Assert.IsNotNull(FindContainerAsset("Test_006"));
+            Assert.IsNotNull(FindContainerAsset("Test_007"));
+            Assert.IsNotNull(FindContainerAsset("Test_008"));
         }
 
         [Test]
-        public void Test_FruitContainer_1_GetObject()
+        public void Test_001_GetObject()
         {
             var container = FindContainerAsset("Test_001");
             Assert.IsNotNull(container.GetObject(typeof(Fruit)));
@@ -48,7 +51,7 @@ namespace Oddworm.EditorFramework.Tests.ScriptableObjectContainerTest
         }
 
         [Test]
-        public void Test_FruitContainer_1_GetObjects()
+        public void Test_001_GetObjects()
         {
             var container = FindContainerAsset("Test_001");
             Assert.IsNotNull(container.GetObjects(typeof(Fruit)));
@@ -66,7 +69,7 @@ namespace Oddworm.EditorFramework.Tests.ScriptableObjectContainerTest
         }
 
         [Test]
-        public void Test_FruitContainer_2_GetObject()
+        public void Test_002_GetObject()
         {
             var container = FindContainerAsset("Test_002");
             Assert.IsNotNull(container.GetObject(typeof(Fruit)));
@@ -77,7 +80,7 @@ namespace Oddworm.EditorFramework.Tests.ScriptableObjectContainerTest
         }
 
         [Test]
-        public void Test_FruitContainer_2_GetObjects()
+        public void Test_002_GetObjects()
         {
             var container = FindContainerAsset("Test_002");
 
@@ -111,7 +114,7 @@ namespace Oddworm.EditorFramework.Tests.ScriptableObjectContainerTest
         }
 
         [Test]
-        public void Test_FruitContainer_3_GetObjects()
+        public void Test_003_GetObjects()
         {
             var container = FindContainerAsset("Test_003");
 
@@ -173,6 +176,65 @@ namespace Oddworm.EditorFramework.Tests.ScriptableObjectContainerTest
 
             var canAdd = EditorScriptableObjectContainerUtility.CanAddObjectOfType(container, typeof(SingleFruit), false);
             Assert.IsTrue(canAdd);
+        }
+
+        [Test]
+        public void Test_006()
+        {
+            var container = FindContainerAsset("Test_006");
+            Assert.NotNull(container);
+
+            var subObj = container.GetObject<SubAssetWithToggle>();
+            Assert.NotNull(subObj);
+
+            var fields = EditorScriptableObjectContainerUtility.GetObjectToggleFields(subObj);
+            Assert.NotNull(fields);
+            Assert.IsTrue(fields.Count == 1);
+
+            var value = EditorScriptableObjectContainerUtility.GetObjectToggleValue(subObj, fields);
+            Assert.IsTrue(value);
+        }
+
+        [Test]
+        public void Test_007()
+        {
+            var container = FindContainerAsset("Test_007");
+            Assert.NotNull(container);
+
+            var subObj = container.GetObject<SubAssetWithToggle>();
+            Assert.NotNull(subObj);
+
+            var fields = EditorScriptableObjectContainerUtility.GetObjectToggleFields(subObj);
+            Assert.NotNull(fields);
+            Assert.IsTrue(fields.Count == 1);
+
+            var value = EditorScriptableObjectContainerUtility.GetObjectToggleValue(subObj, fields);
+            Assert.IsFalse(value);
+        }
+
+        [Test]
+        public void Test_008_SetObjectToggleValue()
+        {
+            var container = FindContainerAsset("Test_008");
+            Assert.NotNull(container);
+
+            var subObj = container.GetObject<SubAssetWithToggle>();
+            Assert.NotNull(subObj);
+
+            var fields = EditorScriptableObjectContainerUtility.GetObjectToggleFields(subObj);
+            Assert.NotNull(fields);
+            Assert.IsTrue(fields.Count == 1);
+
+            Assert.IsFalse(EditorScriptableObjectContainerUtility.GetObjectToggleValue(subObj, fields));
+            try
+            {
+                EditorScriptableObjectContainerUtility.SetObjectToggleValue(subObj, fields, true);
+                Assert.IsTrue(EditorScriptableObjectContainerUtility.GetObjectToggleValue(subObj, fields));
+            }
+            finally
+            {
+                EditorScriptableObjectContainerUtility.SetObjectToggleValue(subObj, fields, false);
+            }
         }
 
         ScriptableObjectContainer FindContainerAsset(string assetName)
