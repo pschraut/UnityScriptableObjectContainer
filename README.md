@@ -69,9 +69,19 @@ Unity's Test Runner.
 
 Additionally to the tests in the Test Runner window,
 it adds various context menu items to create test assets,
-which is the reason why it's disabled by default, basically 
+which is the reason why it's disabled by default,  
 to avoid cluttering your project with things you most likely don't need.
 
+# Context Menu integration
+
+The package adds a "ScriptableObject Containter" item to the
+assets context menu, which allows to create a new
+ScriptableObject Container asset. 
+
+In case you don't want to allow the use of a ScriptableObject Containter, 
+but only allow your specific derived containers, use the 
+```SCRIPTABLEOBJECTCONTAINER_DISABLE_MENUITEM```
+scripting define symbol to remove the context-menuitem.
 
 # Examples
 

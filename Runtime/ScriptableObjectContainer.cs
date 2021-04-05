@@ -17,7 +17,9 @@ using System.Reflection;
 
 namespace Oddworm.Framework
 {
+#if !SCRIPTABLEOBJECTCONTAINER_DISABLE_MENUITEM
     [CreateAssetMenu(menuName = "ScriptableObject Container", order = 310)]
+#endif
     public class ScriptableObjectContainer : ScriptableObject
     {
         [Tooltip("The array holds references to the added objects.")]
