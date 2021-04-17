@@ -213,5 +213,6 @@ class Fruit : ScriptableObject
     [SerializeField] bool m_IsEnabled;
 }
 ```
-It's worth to note that you can't ```m_Enabled``` as field name, since
-it conflicts with a field that Unity implements too, but seemingly Unity isn't using it.
+You can use any field name you like, it doesn't have to be ```m_IsEnabled```.
+However, it's worth to note that you can't use ```m_Enabled``` as field name, because
+it conflicts with a field that Unity implements too (but seemingly Unity isn't using it).
