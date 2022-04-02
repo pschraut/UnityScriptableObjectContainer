@@ -11,7 +11,7 @@ using UnityEditor;
 
 namespace Oddworm.EditorFramework
 {
-    internal class RenameDialog : EditorWindow
+    internal class ScriptableObjectContainerRenameEditorWindow : EditorWindow
     {
         string m_NewText;
         Object m_ObjectToRename;

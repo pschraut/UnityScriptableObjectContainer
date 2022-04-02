@@ -271,7 +271,7 @@ namespace Oddworm.EditorFramework
                 {
                     menu.AddItem(new GUIContent("Rename..."), false, delegate (object o)
                     {
-                        var wnd = EditorWindow.GetWindow<RenameDialog>();
+                        var wnd = EditorWindow.GetWindow<ScriptableObjectContainerRenameEditorWindow>();
                         wnd.Show((Object)o);
                     }, subObject);
                 }
