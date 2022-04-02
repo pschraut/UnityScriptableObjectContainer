@@ -3,7 +3,7 @@
 The [ScriptableObject](https://docs.unity3d.com/Manual/class-ScriptableObject.html) type in Unity is a very powerful concept that has many different applications.
 It lacks one feature that'd skyrocket its usefulness for me and that's being able
 to add "Components" to it. 
-Unity allows to add "Components" to a ScriptableObject asset through code, but they didn't expose functionality to do it through the Inspector.
+Unity allows to add "Components" to a ScriptableObject asset through code, but they don't expose functionality to do it through the Inspector.
 
 The ScriptableObject Container package attempts to solve this.
 It allows to work with ScriptableObjects in a similar way how you work with Components and GameObjects.
@@ -30,7 +30,7 @@ In Unity's Package Manager, choose "Add package from git URL" and insert one of 
 
 | Version  |     Link      |
 |----------|---------------|
-| 1.0.0 | https://github.com/pschraut/UnityScriptableObjectContainer.git#1.0.0 |
+| 1.0.0-pre.1 | https://github.com/pschraut/UnityScriptableObjectContainer.git#1.0.0-pre.1 |
 
 # Credits
 
@@ -50,12 +50,12 @@ Inspector when working with Components.
 The ScriptableObjectContainer itself is rather light-weight. It contains an array with 
 references to its sub-assets.
 This allows you to retrieve these sub-assets through code, similar how you work with the 
-GameObject.GetComponent and GameObject.GetComponents methods.
+```GameObject.GetComponent``` and ```GameObject.GetComponents``` methods.
 
 Beside the sub-assets array and its corresponding getter methods,
 the ScriptableObjectContainer does not contain more code that's required in a build. 
 It implements ```OnValidate``` to update fields in sub-assets that use the 
-```SubAssetOwnerAttribute``` attribute, this code runs in the editor only.
+```SubAssetOwnerAttribute``` attribute, but this code runs in the editor only.
 
 # Test Runner integration
 
@@ -69,12 +69,11 @@ Unity's Test Runner.
 
 Additionally to the tests in the Test Runner window,
 it adds various context menu items to create test assets,
-which is the reason why it's disabled by default,  
-to avoid cluttering your project with things you most likely don't need.
+which is the reason why it's disabled by default, to avoid cluttering your project with things you most likely don't need.
 
 # Context Menu integration
 
-The package adds a "ScriptableObject Containter" item to the
+The package adds a "ScriptableObject Container" item to the
 assets context menu, which allows to create a new
 ScriptableObject Container asset. 
 
@@ -106,14 +105,14 @@ class Fruit : ScriptableObject
 ## FilterSubAssetTypesMethodAttribute
 
 If you want to allow certain ScriptableObjects to be added to the conainter
-only, you can use ```FilterSubAssetTypesMethodAttribute```.
+only, you can use the ```FilterSubAssetTypesMethodAttribute```.
  
 The ```types``` list is initialized with all ScriptableObject types that use the
 ```CreateSubAssetMenuAttribute```. Means you can add any ScriptableObject
 that uses the ```CreateSubAssetMenuAttribute``` to any container by default.
 
 The ```types``` list is then passed to the method decorated with the
-```FilterSubAssetTypesMethodAttribute``` and you implement code that
+```FilterSubAssetTypesMethodAttribute``` and you have to implement code that
 filters the list to those types that you want to support for that particular
 container. The method can be a static- or instance method.
 

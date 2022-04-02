@@ -1,5 +1,5 @@
 ﻿//
-// ScriptableObject Container for Unity. Copyright (c) 2020-2021 Peter Schraut (www.console-dev.de). See LICENSE.md
+// ScriptableObject Container for Unity. Copyright (c) 2020-2022 Peter Schraut (www.console-dev.de). See LICENSE.md
 // https://github.com/pschraut/UnityScriptableObjectContainer
 //
 #pragma warning disable IDE0019 // Use Pattern matching
@@ -223,7 +223,7 @@ namespace Oddworm.Framework
                 {
                     if (++loopguard > 64)
                     {
-                        Debug.LogError($"Loopguard kicked in, detected more than 64 levels of inheritence?", this);
+                        Debug.LogError($"Loopguard kicked in, detected more than {loopguard} levels of inheritence?", this);
                         break;
                     }
 
