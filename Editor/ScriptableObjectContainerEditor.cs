@@ -1,5 +1,5 @@
 ﻿//
-// ScriptableObject Container for Unity. Copyright (c) 2020-2022 Peter Schraut (www.console-dev.de). See LICENSE.md
+// ScriptableObject Container for Unity. Copyright (c) 2020-2023 Peter Schraut (www.console-dev.de). See LICENSE.md
 // https://github.com/pschraut/UnityScriptableObjectContainer
 //
 #pragma warning disable IDE0079 // Remove unnecessary suppression
@@ -577,23 +577,49 @@ namespace Oddworm.EditorFramework
             // Get all types that are decorated with the CreateSubAssetMenu attribute.
             void GetScriptableObjectTypes(List<System.Type> result)
             {
+                var containersLookup = new Dictionary<System.Type, bool>();
+                foreach(var t in targets)
+                {
+                    if (t != null)
+                        containersLookup[t.GetType()] = true;
+                }
+
                 foreach (var type in TypeCache.GetTypesWithAttribute<CreateSubAssetMenuAttribute>())
                 {
-                    if (!type.IsSubclassOf(typeof(ScriptableObject)))
-                        continue;
-
                     if (type.IsAbstract)
                         continue;
 
                     if (type.IsGenericType)
                         continue;
 
-                    var isContainer = type == typeof(ScriptableObjectContainer);
-                    if (type.IsSubclassOf(typeof(ScriptableObjectContainer)))
-                        isContainer = true;
+                    if (!type.IsSubclassOf(typeof(ScriptableObject)))
+                        continue;
 
-                    if (!isContainer)
-                        result.Add(type);
+                    // We don't allow to add a container to another container
+                    if (type.IsSubclassOf(typeof(ScriptableObjectContainer)))
+                        continue;
+
+                    // Check whether the current type is supported by the container that's
+                    // currently shown in the inspector
+                    var supportsType = false;
+                    foreach (var a in type.GetCustomAttributes<CreateSubAssetMenuAttribute>(true))
+                    {
+                        foreach(var t in containersLookup.Keys)
+                        {
+                            if (a.type == null)
+                                continue;
+                            if (a.allowSubClass && !t.IsSubclassOf(a.type))
+                                continue;
+                            if (!a.allowSubClass && t != a.type)
+                                continue;
+                            supportsType = true;
+                            break;
+                        }
+                    }
+                    if (!supportsType)
+                        continue;
+
+                    result.Add(type);
                 }
             }
 
