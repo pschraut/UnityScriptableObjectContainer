@@ -23,8 +23,8 @@ You can think of a ScriptableObjectContainer as "GameObject" and its sub-assets 
 
 # Installation
 
-As of Unity 2019.3, Unity supports to add packages from git through the Package Manager window. 
-In Unity's Package Manager, choose "Add package from git URL" and insert one of the Package URL's you can find below.
+From the Unity main menu choose Window > Package Manager.
+In the Package Manager window, choose "Add package from git URL" and insert one of the Package URL's you can find below.
 
 ## Package URL's
 
@@ -44,12 +44,13 @@ derives from ScriptableObject.
 
 A custom inspector implements the magic that allows to add a ScriptableObject as sub-asset, 
 to remove such sub-asset as well as to change properties of such sub-asset through the Inspector. 
+
 The ScriptableObjectContainer Inspector attempts to mimic the look and feel of Unity's built-in 
-Inspector when working with Components.
+Inspector when working with GameObjects and Components.
 
 The ScriptableObjectContainer itself is rather light-weight. It contains an array with 
 references to its sub-assets.
-This allows you to retrieve these sub-assets through code, similar how you work with the 
+This allows you to retrieve these sub-assets through code, similar to how you work with the 
 ```GameObject.GetComponent``` and ```GameObject.GetComponents``` methods.
 
 Beside the sub-assets array and its corresponding getter methods,
@@ -89,64 +90,22 @@ scripting define symbol to remove the context-menuitem.
 [![](http://img.youtube.com/vi/SWw3CWeXV6g/0.jpg)](http://www.youtube.com/watch?v=SWw3CWeXV6g "")
 
 A ScriptableObjectContainer shows an "Add Object" button in the Inspector,
-much like a GameObject shows a "Add Component" button, which allows to add
-objects derived from ScriptableObject to the container.
+much like a GameObject shows a "Add Component" button. It allows you to add
+objects that inherit from ScriptableObject to a specific container.
 
 In order to add a ScriptableObject to the "Add Object" menu, you need to
 add the ```CreateSubAssetMenuAttribute``` to the ScriptableObject type.
+
+You can add multiple ```CreateSubAssetMenuAttribute``` to add it to different
+containers. You can also specify the base-container type to add it a menu item
+to all types that inherit from that base-container.
 ```CSharp
-[CreateSubAssetMenu(menuName = "Fruit")]
+[CreateSubAssetMenu(typeof(FruitContainer), menuName = "Fruit")]
 class Fruit : ScriptableObject
 {
     // ...
 }
 ```
-
-## FilterSubAssetTypesMethodAttribute
-
-If you want to allow certain ScriptableObjects to be added to the conainter
-only, you can use the ```FilterSubAssetTypesMethodAttribute```.
- 
-The ```types``` list is initialized with all ScriptableObject types that use the
-```CreateSubAssetMenuAttribute```. Means you can add any ScriptableObject
-that uses the ```CreateSubAssetMenuAttribute``` to any container by default.
-
-The ```types``` list is then passed to the method decorated with the
-```FilterSubAssetTypesMethodAttribute``` and you have to implement code that
-filters the list to those types that you want to support for that particular
-container. The method can be a static- or instance method.
-
-Example 1
-```CSharp
-public class MyContainer : ScriptableObjectContainer
-{
-    [FilterSubAssetTypesMethod]
-    static void MyFilterSubAssetTypesMethod(List<Type> types) // Can be static or non-static
-    {
-        types.Clear();
-        types.Add(typeof(MySubAssetBaseClass));
-    }
-}
-```
-
-Example 2
-```CSharp
-public class MyContainer : ScriptableObjectContainer
-{
-    [FilterSubAssetTypesMethod]
-    static void MyFilterSubAssetTypesMethod(List<Type> types) // Can be static or non-static
-    {
-        for (var n = types.Count - 1; n >= 0; --n)
-        {
-            if (!types[n].IsSubclassOf(typeof(MySubAssetBaseClass)))
-                types.RemoveAt(n);
-        }
-    }
-}
-```
-
-You can implement one or multiple methods with the ```CreateSubAssetMenuAttribute```
-in the same class or class inheritance chain and each of these methods is being called.
 
 
 ## DisallowMultipleSubAssetAttribute
@@ -213,5 +172,5 @@ class Fruit : ScriptableObject
 }
 ```
 You can use any field name you like, it doesn't have to be ```m_IsEnabled```.
-However, it's worth to note that you can't use ```m_Enabled``` as field name, because
+However, it's worth noting that you can't use ```m_Enabled``` as field name, because
 it conflicts with a field that Unity implements too (but seemingly Unity isn't using it).

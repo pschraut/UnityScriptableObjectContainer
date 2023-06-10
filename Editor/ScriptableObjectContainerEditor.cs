@@ -505,9 +505,6 @@ namespace Oddworm.EditorFramework
 
             GetScriptableObjectTypes(typeList);
 
-            foreach (var t in targets)
-                EditorScriptableObjectContainerUtility.FilterTypes(t as ScriptableObjectContainer, typeList);
-
             // Remove unsupported types from the "Add Object" menu, where unsupported here
             // also means types that can't be added because of [DisallowMultipleSubAsset] for example.
             for (var n= typeList.Count-1; n>=0; --n)

@@ -15,10 +15,7 @@ using System.Reflection;
 namespace Oddworm.EditorFramework
 {
     public static class EditorScriptableObjectContainerUtility
-    {
-        static int s_FilterTypesStackOverflowGuard = 0;
-
-        /// <summary>
+    {     /// <summary>
         /// Gets all private and public fields in the specified <paramref name="subObject"/>
         /// that are decorated with the <see cref="SubAssetToggleAttribute"/>.
         /// </summary>
@@ -159,140 +156,7 @@ namespace Oddworm.EditorFramework
                 }
             }
 
-            // If CanAddObjectOfType is called from CanAddObjectOfType in its FilterTypes callback,
-            // don't run it to avoid stack overflow issues.
-            if (s_FilterTypesStackOverflowGuard == 0)
-            {
-                s_FilterTypesStackOverflowGuard++;
-                try
-                {
-                    var typesList = new List<System.Type>(new[] { type });
-
-                    FilterTypes(container, typesList);
-                    var isTypeValid = typesList.Contains(type);
-                    if (!isTypeValid)
-                    {
-                        if (displayDialog)
-                        {
-                            var title = $"Can't add object!";
-                            var message = $"The object of type '{type.Name}' cannot be added, because '{container.name}' does not support this type.\n\nSupport for types can be filtered using the [{nameof(FilterSubAssetTypesMethodAttribute)}] in that container.";
-                            EditorUtility.DisplayDialog(title, message, "OK");
-                        }
-
-                        return false;
-                    }
-                }
-                finally
-                {
-                    s_FilterTypesStackOverflowGuard--;
-                }
-            }
-
             return true;
-        }
-
-        /// <summary>
-        /// Removes all items from the <paramref name="typesList"/> that the <paramref name="container"/> does not support.
-        /// </summary>
-        /// <param name="container">The container.</param>
-        /// <param name="typesList">A list of types.</param>
-        public static void FilterTypes(ScriptableObjectContainer container, List<System.Type> typesList)
-        {
-            if (container == null)
-            {
-                typesList.Clear();
-                return;
-            }
-
-            var methods = new List<MethodInfo>();
-            var containerType = container.GetType();
-            foreach (var method in TypeCache.GetMethodsWithAttribute<FilterSubAssetTypesMethodAttribute>())
-            {
-                if (method.DeclaringType != containerType)
-                    continue;
-
-                if (!VerifyFilterTypesMethod(method))
-                {
-                    Debug.LogError($"The method '{method.Name}' in type '{method.DeclaringType.FullName}' is decorated with the '{typeof(FilterSubAssetTypesMethodAttribute).FullName}' attribute, but the method signature is incorrect. The method signature must be 'void {method.Name}(System.Collections.Generic.List<System.Type> types)' instead and can be either static or not.");
-                    continue;
-                }
-
-                methods.Add(method);
-            }
-
-            methods.Sort(delegate (MethodInfo a, MethodInfo b)
-            {
-                var attr0 = a.GetCustomAttribute<FilterSubAssetTypesMethodAttribute>(true);
-                var attr1 = b.GetCustomAttribute<FilterSubAssetTypesMethodAttribute>(true);
-
-                // If the order is identical, use the full name for sorting.
-                // This is to make execution order stable (as long as name doesn't change)
-                if (attr0.order == attr1.order)
-                {
-                    var name0 = $"{a.DeclaringType.FullName}.{a.Name}";
-                    var name1 = $"{b.DeclaringType.FullName}.{b.Name}";
-
-                    return string.Compare(name0, name1, System.StringComparison.Ordinal);
-                }
-
-                return attr0.order.CompareTo(attr1.order);
-            });
-
-            // Call the FilterTypes method
-            for (var n=0; n<methods.Count; ++n)
-            {
-                var method = methods[n];
-
-                if (method.IsStatic)
-                    method.Invoke(null, new[] { typesList });
-                else
-                    method.Invoke(container, new[] { typesList });
-            }
-
-            // Remove all non ScriptableObjects that might have been added during the filter process
-            RemoveNonScriptableObjects();
-
-            void RemoveNonScriptableObjects()
-            {
-                for (var n = typesList.Count - 1; n >= 0; --n)
-                {
-                    if (typesList[n] == null)
-                    {
-                        typesList.RemoveAt(n);
-                        continue;
-                    }
-
-                    if (!typesList[n].IsSubclassOf(typeof(ScriptableObject)))
-                    {
-                        typesList.RemoveAt(n);
-                        continue;
-                    }
-                }
-            }
-
-            bool VerifyFilterTypesMethod(System.Reflection.MethodInfo method)
-            {
-                if (method.IsAbstract)
-                    return false;
-
-                //if (!method.IsStatic)
-                //    return false;
-
-                // Accept method with one argument only.
-                var parameters = method.GetParameters();
-                if (parameters == null || parameters.Length != 1)
-                    return false;
-
-                // Accept List<System.Type> as parameter type only.
-                if (parameters[0].ParameterType != typeof(List<System.Type>))
-                    return false;
-
-                // Accept void return type only.
-                if (method.ReturnType != typeof(void))
-                    return false;
-
-                return true;
-            }
         }
 
         /// <summary>
