@@ -609,6 +609,8 @@ namespace Oddworm.EditorFramework
                                 continue;
                             if (!a.allowSubClass && t != a.type)
                                 continue;
+                            if (a.excludeThisClass && t == a.type)
+                                continue;
                             supportsType = true;
                             break;
                         }

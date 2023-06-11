@@ -36,6 +36,17 @@ namespace Oddworm.Framework
         }
 
         /// <summary>
+        /// Whether to create a menu item for the <see cref="type"/> specifically. It's useful when you add
+        /// the <see cref="CreateSubAssetMenuAttribute"/> to a base-class where you want all sub-classes to
+        /// have menu items generated for, except for the base-class.
+        /// </summary>
+        public bool excludeThisClass
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
         /// The display name for this type shown in the "Add Object" menu.
         /// If <see cref="menuName"/> is empty, it uses the type name instead.
         /// </summary>
