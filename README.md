@@ -77,7 +77,7 @@ The package adds a "ScriptableObject Container" item to the
 assets context menu, which allows to create a new
 ScriptableObject Container asset. 
 
-In case you don't want to allow the use of a ScriptableObject Containter, 
+In case you don't want to allow the use of a ScriptableObject Container, 
 but only allow your specific derived containers, use the 
 ```SCRIPTABLEOBJECTCONTAINER_DISABLE_MENUITEM```
 scripting define symbol to remove the context-menuitem.
@@ -107,8 +107,6 @@ class Fruit : ScriptableObject
 
 ## DisallowMultipleSubAssetAttribute
 
-[![](http://img.youtube.com/vi/QnjTcPqM0sg/0.jpg)](http://www.youtube.com/watch?v=QnjTcPqM0sg "")
-
 If you want to prevent to add the same ScriptableObject type (or subtype)
 more than once to the same container, you can use the ```DisallowMultipleSubAssetAttribute```.
 
@@ -122,10 +120,10 @@ class Fruit : ScriptableObject
     // ...
 }
 ```
+[![](http://img.youtube.com/vi/QnjTcPqM0sg/0.jpg)](http://www.youtube.com/watch?v=QnjTcPqM0sg "")
+
 
 ## SubAssetOwnerAttribute
-
-[![](http://img.youtube.com/vi/Ex9FQ3yXhBw/0.jpg)](http://www.youtube.com/watch?v=Ex9FQ3yXhBw "")
 
 If you need a reference to the ScriptableObjectContainer inside your ScriptableObject
 sub-asset, you can use the ```SubAssetOwnerAttribute``` for the system to automatically
@@ -148,10 +146,10 @@ class Fruit : ScriptableObject
                                          // from ScriptableObjectContainer
 }
 ```
+[![](http://img.youtube.com/vi/Ex9FQ3yXhBw/0.jpg)](http://www.youtube.com/watch?v=Ex9FQ3yXhBw "")
+
 
 ## SubAssetToggleAttribute
-
-[![](http://img.youtube.com/vi/tMfqDenY1pc/0.jpg)](http://www.youtube.com/watch?v=tMfqDenY1pc "")
 
 Unity does not support the concept of enabling and disabling a ScriptableObject,
 but I often found myselfing wanting a simple way to expose an "enabled" toggle
@@ -170,3 +168,5 @@ class Fruit : ScriptableObject
 You can use any field name you like, it doesn't have to be ```m_IsEnabled```.
 However, it's worth noting that you can't use ```m_Enabled``` as field name, because
 it conflicts with a field that Unity implements too (but seemingly Unity isn't using it).
+
+[![](http://img.youtube.com/vi/tMfqDenY1pc/0.jpg)](http://www.youtube.com/watch?v=tMfqDenY1pc "")
