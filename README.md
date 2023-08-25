@@ -102,7 +102,7 @@ public class Fruit : ScriptableObject
 }
 ```
 In the image below you can find how above code looks in the Inspector:
-![alt text](Documentation~/Images/Inspector.png "ScriptableObject Container displayed in the Inspector")
+![alt text](Documentation~/Images/Inspector-FruitExample.png "ScriptableObject Container displayed in the Inspector")
 
 
 ## CreateSubAssetMenuAttribute
@@ -192,8 +192,3 @@ it conflicts with a field that Unity implements too (but seemingly Unity isn't u
 
 [![](http://img.youtube.com/vi/tMfqDenY1pc/0.jpg)](http://www.youtube.com/watch?v=tMfqDenY1pc "")
 
-# Screenshots
-
-Below, you will find a screenshot of a ScriptableObject Container with several sub-assets added, demonstrating its usage in an actual project.
-
-![alt text](Documentation~/Images/Inspector-FruitExample.png "ScriptableObject Container displayed in the Inspector")
