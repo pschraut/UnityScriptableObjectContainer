@@ -85,6 +85,8 @@ scripting define symbol to remove the context-menuitem.
 # Examples
 
 ## Code
+
+FruitContainer.cs
 ```CSharp
 // Inherit a new container type from ScriptableObjectContainer.
 // The CreateAssetMenu attribute lets you create the container from the Assets/Create menu.
@@ -92,7 +94,10 @@ scripting define symbol to remove the context-menuitem.
 public class FruitContainer : Oddworm.Framework.ScriptableObjectContainer
 {
 }
+```
 
+Fruit.cs
+```CSharp
 // Create a new type that adds itself to the "FruitContainer" Inspector.
 // The CreateSubAssetMenu attribute lets you add objects to the container through in the Inspector.
 [CreateSubAssetMenu(typeof(FruitContainer))]
@@ -101,6 +106,7 @@ public class Fruit : ScriptableObject
     [SerializeField] int m_HelloWorld = 123;
 }
 ```
+
 In the image below you can find how above code looks in the Inspector:
 ![alt text](Documentation~/Images/Inspector-FruitExample.png "ScriptableObject Container displayed in the Inspector")
 
