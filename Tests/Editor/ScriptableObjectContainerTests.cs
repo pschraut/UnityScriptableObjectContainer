@@ -5,10 +5,11 @@
 #pragma warning disable IDE0079 // Remove unnecessary suppression
 #pragma warning disable IDE0040 // Add accessibility modifiers
 #pragma warning disable IDE0051 // Remove unused private members
+#pragma warning disable IDE0062 // Make local function 'static'
+#pragma warning disable IDE0074 // Use compound assignment
 using UnityEngine;
 using NUnit.Framework;
 using UnityEditor;
-using UnityEditor.SceneManagement;
 using Oddworm.Framework;
 
 namespace Oddworm.EditorFramework.Tests.ScriptableObjectContainerTest

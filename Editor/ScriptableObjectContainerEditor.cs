@@ -10,6 +10,7 @@
 #pragma warning disable IDE0019 // Use Pattern matching
 #pragma warning disable IDE0017 // Object initialization can be simplified
 #pragma warning disable IDE0062 // Local function can be made static
+#pragma warning disable IDE0074 // Use compound assignment
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
@@ -22,10 +23,10 @@ namespace Oddworm.EditorFramework
     [CustomEditor(typeof(ScriptableObjectContainer), editorForChildClasses: true, isFallback = false)]
     public class ScriptableObjectContainerEditor : Editor
     {
-        readonly List<Editor> m_Editors = new List<Editor>();
-        Script m_MissingScriptObject = default; // If a sub-object is null, use the m_MissingScriptObject as object to draw the titlebar
+        readonly List<Editor> m_Editors = new();
+        Script m_MissingScriptObject; // If a sub-object is null, use the m_MissingScriptObject as object to draw the titlebar
         string m_SearchText = "";
-        UnityEditor.IMGUI.Controls.SearchField m_SearchField = default;
+        UnityEditor.IMGUI.Controls.SearchField m_SearchField;
         Rect m_AddObjectButtonRect; // the layout rect of the "Add Object" button. We use it to display the popup menu at the proper position
 
         class Script : ScriptableObject { }
@@ -89,8 +90,7 @@ namespace Oddworm.EditorFramework
                         continue;
 
                     var m = t.GetType().GetMethod("OnValidate", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-                    if (m != null)
-                        m.Invoke(t, null);
+                    m?.Invoke(t, null);
                 }
             }
         }

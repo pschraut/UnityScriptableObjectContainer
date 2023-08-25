@@ -282,7 +282,7 @@ namespace Oddworm.EditorFramework
             var assetPath = AssetDatabase.GetAssetPath(container);
             foreach (var obj in AssetDatabase.LoadAllAssetsAtPath(assetPath))
             {
-                if (!(obj is ScriptableObject))
+                if (obj is not ScriptableObject)
                     continue;
                 if (obj is ScriptableObjectContainer)
                     continue;

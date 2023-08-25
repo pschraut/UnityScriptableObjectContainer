@@ -24,9 +24,9 @@ namespace Oddworm.Framework
     {
         [Tooltip("The array holds references to the added objects.")]
         [HideInInspector]
-        [SerializeField] ScriptableObject[] m_SubObjects = new ScriptableObject[0];
+        [SerializeField] ScriptableObject[] m_SubObjects = Array.Empty<ScriptableObject>();
 
-        static readonly List<object> s_TempCache = new List<object>();
+        static readonly List<object> s_TempCache = new();
 
         /// <summary>
         /// Gets the first object of the specified type.
@@ -66,8 +66,7 @@ namespace Oddworm.Framework
 
             for (var n = 0; n < m_SubObjects.Length; ++n)
             {
-                var subobj = m_SubObjects[n] as T;
-                if (subobj != null)
+                if (m_SubObjects[n] is T subobj)
                     return subobj;
             }
 
@@ -115,8 +114,7 @@ namespace Oddworm.Framework
 
             for (var n = 0; n < m_SubObjects.Length; ++n)
             {
-                var subobj = m_SubObjects[n] as T;
-                if (subobj != null)
+                if (m_SubObjects[n] is T subobj)
                     results.Add(subobj);
             }
         }
@@ -275,17 +273,17 @@ namespace Oddworm.Framework
         /// </summary>
         /// <param name="type">The type to verify.</param>
         /// <param name="methodName">The method name of the caller.</param>
-        void ThrowIfInvalidType(System.Type type, string methodName)
+        void ThrowIfInvalidType(Type type, string methodName)
         {
             if (type == null)
-                throw new System.ArgumentNullException($"Type must not be null.");
+                throw new ArgumentNullException($"Type must not be null.");
 
             var isValidType = type.IsSubclassOf(typeof(ScriptableObject)) || type == typeof(ScriptableObject);
             if (type.IsInterface)
                 isValidType = true;
 
             if (!isValidType)
-                throw new System.ArgumentException($"{methodName} requires that the requested component '{type.Name}' derives from {nameof(ScriptableObject)} or is an interface.");
+                throw new ArgumentException($"{methodName} requires that the requested component '{type.Name}' derives from {nameof(ScriptableObject)} or is an interface.");
         }
     }
 }
