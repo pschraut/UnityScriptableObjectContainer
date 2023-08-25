@@ -88,6 +88,7 @@ scripting define symbol to remove the context-menuitem.
 
 FruitContainer.cs:
 ```CSharp
+using UnityEngine;
 using Oddworm.Framework;
 
 // Inherit a new container type from ScriptableObjectContainer.
@@ -100,6 +101,7 @@ public class FruitContainer : ScriptableObjectContainer
 
 Fruit.cs:
 ```CSharp
+using UnityEngine;
 using Oddworm.Framework;
 
 // Create a new type that adds itself to the "FruitContainer" Inspector.
