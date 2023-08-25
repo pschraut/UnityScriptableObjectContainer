@@ -1,16 +1,15 @@
 # ScriptableObject Container for Unity
 
-The [ScriptableObject](https://docs.unity3d.com/Manual/class-ScriptableObject.html) type in Unity is a very powerful concept that has many different applications.
-It lacks one feature that'd skyrocket its usefulness for me and that's being able
-to add "Components" to it. 
-Unity allows to add "Components" to a ScriptableObject asset through code, but they don't expose functionality to do it through the Inspector.
+The [ScriptableObject](https://docs.unity3d.com/Manual/class-ScriptableObject.html) type in Unity is a powerful concept with many different applications.
+However, it lacks a feature that would greatly increase its usefulness for me: the ability to add "Components" to it.
+While Unity allows you to add "Components" to a ScriptableObject asset through code, it does not provide functionality to do so through the Inspector.
 
-The ScriptableObject Container package attempts to solve this.
-It allows to work with ScriptableObjects in a similar way how you work with Components and GameObjects.
+The ScriptableObject Container package aims to solve this issue.
+It allows you to work with ScriptableObjects in a similar manner to how you work with Components and GameObjects.
 
-You add a ScriptableObject to a ```ScriptableObjectContainer``` via the Inspector in a similar way how you add a Component to a GameObject.
+To add a ScriptableObject to a ```ScriptableObjectContainer```, you can use the Inspector, just like adding a Component to a GameObject.
 
-On the scripting side, you get the ScriptableObject from the ```ScriptableObjectContainer``` in a similar way how you get a Component from a GameObject.
+On the scripting side, you can access the ScriptableObject from the ```ScriptableObjectContainer``` in a similar way to how you access a Component from a GameObject.
 
 | ScriptableObjectContainer  |     GameObject      |
 |----------|---------------|
@@ -87,8 +86,6 @@ scripting define symbol to remove the context-menuitem.
 
 ## CreateSubAssetMenuAttribute
 
-[![](http://img.youtube.com/vi/SWw3CWeXV6g/0.jpg)](http://www.youtube.com/watch?v=SWw3CWeXV6g "")
-
 A ScriptableObjectContainer shows an "Add Object" button in the Inspector,
 much like a GameObject shows a "Add Component" button. It allows you to add
 objects that inherit from ScriptableObject to a specific container.
@@ -97,8 +94,8 @@ In order to add a ScriptableObject to the "Add Object" menu, you need to
 add the ```CreateSubAssetMenuAttribute``` to the ScriptableObject type.
 
 You can add multiple ```CreateSubAssetMenuAttribute``` to add it to different
-containers. You can also specify the base-container type to add it a menu item
-to all types that inherit from that base-container.
+containers. You can also specify the base-container type to add a menu item
+to all types that inherit from the base-container.
 ```CSharp
 [CreateSubAssetMenu(typeof(FruitContainer), menuName = "Fruit")]
 class Fruit : ScriptableObject
@@ -113,8 +110,7 @@ class Fruit : ScriptableObject
 [![](http://img.youtube.com/vi/QnjTcPqM0sg/0.jpg)](http://www.youtube.com/watch?v=QnjTcPqM0sg "")
 
 If you want to prevent to add the same ScriptableObject type (or subtype)
-more than once to the same container, you can use the
-```DisallowMultipleSubAssetAttribute```.
+more than once to the same container, you can use the ```DisallowMultipleSubAssetAttribute```.
 
 This works similar to how you use Unity's
  [DisallowMultipleComponentAttribute](https://docs.unity3d.com/ScriptReference/DisallowMultipleComponent.html)
@@ -134,7 +130,7 @@ class Fruit : ScriptableObject
 If you need a reference to the ScriptableObjectContainer inside your ScriptableObject
 sub-asset, you can use the ```SubAssetOwnerAttribute``` for the system to automatically
 setup the reference for you. The code that sets up references runs in the editor only,
-thus there is no performance penalty in a build.
+there is no performance penalty in a build.
 ```CSharp
 class Fruit : ScriptableObject
 {
