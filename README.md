@@ -20,12 +20,6 @@ On the scripting side, you can access the ScriptableObject from the ```Scriptabl
 
 You can think of a ScriptableObjectContainer as "GameObject" and its sub-assets (or objects) would be the Components on a GameObject.
 
-# Screenshots
-
-Below, you will find a screenshot of a ScriptableObject Container with several sub-assets added, demonstrating its usage in an actual project.
-
-![alt text](Documentation~/Images/Inspector.png "ScriptableObject Container displayed in the Inspector")
-
 # Installation
 
 From the Unity main menu choose Window > Package Manager.
@@ -89,6 +83,27 @@ but only allow your specific derived containers, use the
 scripting define symbol to remove the context-menuitem.
 
 # Examples
+
+## Code
+```CSharp
+// Inherit a new container type from ScriptableObjectContainer.
+// The CreateAssetMenu attribute lets you create the container from the Assets/Create menu.
+[CreateAssetMenu(menuName = "FruitContainer")]
+public class FruitContainer : Oddworm.Framework.ScriptableObjectContainer
+{
+}
+
+// Create a new type that adds itself to the "FruitContainer" Inspector.
+// The CreateSubAssetMenu attribute lets you add objects to the container through in the Inspector.
+[CreateSubAssetMenu(typeof(FruitContainer))]
+public class Fruit : ScriptableObject
+{
+    [SerializeField] int m_HelloWorld = 123;
+}
+```
+In the image below you can find how above code looks in the Inspector:
+![alt text](Documentation~/Images/Inspector.png "ScriptableObject Container displayed in the Inspector")
+
 
 ## CreateSubAssetMenuAttribute
 
@@ -176,3 +191,9 @@ However, it's worth noting that you can't use ```m_Enabled``` as field name, bec
 it conflicts with a field that Unity implements too (but seemingly Unity isn't using it).
 
 [![](http://img.youtube.com/vi/tMfqDenY1pc/0.jpg)](http://www.youtube.com/watch?v=tMfqDenY1pc "")
+
+# Screenshots
+
+Below, you will find a screenshot of a ScriptableObject Container with several sub-assets added, demonstrating its usage in an actual project.
+
+![alt text](Documentation~/Images/Inspector-FruitExample.png "ScriptableObject Container displayed in the Inspector")
