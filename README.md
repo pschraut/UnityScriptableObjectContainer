@@ -20,6 +20,12 @@ On the scripting side, you can access the ScriptableObject from the ```Scriptabl
 
 You can think of a ScriptableObjectContainer as "GameObject" and its sub-assets (or objects) would be the Components on a GameObject.
 
+# Screenshots
+
+Below, you will find a screenshot of a ScriptableObject Container with several sub-assets added, demonstrating its usage in an actual project.
+
+![alt text](Documentation~/Images/Inspector.png "ScriptableObject Container displayed in the Inspector")
+
 # Installation
 
 From the Unity main menu choose Window > Package Manager.
