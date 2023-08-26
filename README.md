@@ -36,6 +36,50 @@ In the Package Manager window, choose "Add package from git URL" and insert one 
 If this package is useful to you, please mention my name in your credits screen.
 Something like "ScriptableObject Container by Peter Schraut" or "Thanks to Peter Schraut" would be very much appreciated.
 
+# Example
+
+FruitContainer.cs:
+```CSharp
+using UnityEngine;
+using Oddworm.Framework;
+
+// Inherit a new container type from ScriptableObjectContainer.
+// The CreateAssetMenu attribute lets you create the container from the Assets/Create menu.
+[CreateAssetMenu(menuName = "FruitContainer")]
+public class FruitContainer : ScriptableObjectContainer
+{
+}
+```
+
+Fruit.cs:
+```CSharp
+using UnityEngine;
+using Oddworm.Framework;
+
+// Create a new type that adds itself to the "FruitContainer" Inspector.
+// The CreateSubAssetMenu attribute lets you add objects to the container through in the Inspector.
+[CreateSubAssetMenu(typeof(FruitContainer))]
+public class Fruit : ScriptableObject
+{
+    [SerializeField] int m_HelloWorld = 123;
+}
+```
+
+When you create the ```FruitContainer``` asset via "Assets/Create/FruitContainer" it displays an empty ScriptableObjectContainer in
+a similar manner as a GameObject without Components.
+ 
+![alt text](Documentation~/Images/Inspector-FruitExample-1.png "ScriptableObject Container")
+ 
+You can then add sub-assets via the "Add Object" button. The menu displays all ScriptableObject that have been added to the
+container via the ```CreateSubAssetMenu``` attribute.
+ 
+![alt text](Documentation~/Images/Inspector-FruitExample-2.png "ScriptableObject Container")
+ 
+After adding the sub-asset it's shown in the Inspector as demonstrated in the image below.
+ 
+![alt text](Documentation~/Images/Inspector-FruitExample-3.png "ScriptableObject Container")
+
+
 # How it works
 
 The package introduces the type ```ScriptableObjectContainer``` that 
@@ -82,51 +126,8 @@ but only allow your specific derived containers, use the
 ```SCRIPTABLEOBJECTCONTAINER_DISABLE_MENUITEM```
 scripting define symbol to remove the context-menuitem.
 
-# Examples
 
-## Code
-
-FruitContainer.cs:
-```CSharp
-using UnityEngine;
-using Oddworm.Framework;
-
-// Inherit a new container type from ScriptableObjectContainer.
-// The CreateAssetMenu attribute lets you create the container from the Assets/Create menu.
-[CreateAssetMenu(menuName = "FruitContainer")]
-public class FruitContainer : ScriptableObjectContainer
-{
-}
-```
-
-Fruit.cs:
-```CSharp
-using UnityEngine;
-using Oddworm.Framework;
-
-// Create a new type that adds itself to the "FruitContainer" Inspector.
-// The CreateSubAssetMenu attribute lets you add objects to the container through in the Inspector.
-[CreateSubAssetMenu(typeof(FruitContainer))]
-public class Fruit : ScriptableObject
-{
-    [SerializeField] int m_HelloWorld = 123;
-}
-```
-
-When you create the ```FruitContainer``` asset via "Assets/Create/FruitContainer" it displays an empty ScriptableObjectContainer in
-a similar manner as a GameObject without Components.
- 
-![alt text](Documentation~/Images/Inspector-FruitExample-1.png "ScriptableObject Container")
- 
-You can then add sub-assets via the "Add Object" button. The menu displays all ScriptableObject that have been added to the
-container via the ```CreateSubAssetMenu``` attribute.
- 
-![alt text](Documentation~/Images/Inspector-FruitExample-2.png "ScriptableObject Container")
- 
-After adding the sub-asset it's shown in the Inspector as demonstrated in the image below.
- 
-![alt text](Documentation~/Images/Inspector-FruitExample-3.png "ScriptableObject Container")
-
+# More Examples
 
 ## CreateSubAssetMenuAttribute
 
