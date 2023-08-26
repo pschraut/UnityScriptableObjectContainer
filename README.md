@@ -36,6 +36,10 @@ In the Package Manager window, choose "Add package from git URL" and insert one 
 If this package is useful to you, please mention my name in your credits screen.
 Something like "ScriptableObject Container by Peter Schraut" or "Thanks to Peter Schraut" would be very much appreciated.
 
+# Contact
+
+Please post in the Unity forums thread that I created for this package: https://forum.unity.com/threads/scriptableobject-container-package.1484589/
+
 # Example
 
 FruitContainer.cs:
@@ -82,8 +86,7 @@ After adding the sub-asset it's shown in the Inspector as demonstrated in the im
 
 # How it works
 
-The package introduces the type ```ScriptableObjectContainer``` that 
-derives from ScriptableObject.
+The package introduces the type ```ScriptableObjectContainer``` that inherits from ScriptableObject.
 
 A custom inspector implements the magic that allows to add a ScriptableObject as sub-asset, 
 to remove such sub-asset as well as to change properties of such sub-asset through the Inspector. 
