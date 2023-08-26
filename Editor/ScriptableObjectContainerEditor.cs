@@ -250,9 +250,9 @@ namespace Oddworm.EditorFramework
             var enabledHit = false;
             var enabledRect = titlebarRect;
             enabledRect.x += 37;
-            enabledRect.y += 1;
+            enabledRect.y += 2;
             enabledRect.width = 21;
-            enabledRect.height -= 4;
+            enabledRect.height -= 5;
             if (!isMissing && isEditable && enabledRect.Contains(e.mousePosition) && (e.type != EventType.Layout && e.type != EventType.Repaint))
             {
                 enabledHit = e.type == EventType.MouseUp;
