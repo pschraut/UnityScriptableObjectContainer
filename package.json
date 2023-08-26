@@ -1,6 +1,6 @@
 {
   "name": "com.oddworm.scriptableobjectcontainer",
-  "version": "1.0.0-pre.1",
+  "version": "1.0.0",
   "displayName": "ScriptableObject Container",
   "description": "The ScriptableObject Container package provides the ability to nest ScriptableObjects and work with them in a similar manner as Components.\n\nYou can add a ScriptableObject to another ScriptableObject Container just like how you add a Component to a GameObject.\n\nOn the scripting side, you retrieve ScriptableObjects from the Container in a similar way to how you retrieve Components from a GameObject.",
   "unity": "2021.3",

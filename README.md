@@ -29,7 +29,7 @@ In the Package Manager window, choose "Add package from git URL" and insert one 
 
 | Version  |     Link      |
 |----------|---------------|
-| 1.0.0-pre.1 | https://github.com/pschraut/UnityScriptableObjectContainer.git#1.0.0-pre.1 |
+| 1.0.0 | https://github.com/pschraut/UnityScriptableObjectContainer.git#1.0.0 |
 
 # Credits
 
