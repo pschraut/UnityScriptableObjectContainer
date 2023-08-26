@@ -113,8 +113,19 @@ public class Fruit : ScriptableObject
 }
 ```
 
-In the image below you can find how above code looks in the Inspector:
-![alt text](Documentation~/Images/Inspector-FruitExample.png "ScriptableObject Container displayed in the Inspector")
+When you create the ```FruitContainer``` asset via "Assets/Create/FruitContainer" it displays an empty ScriptableObjectContainer in
+a similar manner as a GameObject without Components.
+ 
+![alt text](Documentation~/Images/Inspector-FruitExample-1.png "ScriptableObject Container")
+ 
+You can then add sub-assets via the "Add Object" button. The menu displays all ScriptableObject that have been added to the
+container via the ```CreateSubAssetMenu``` attribute.
+ 
+![alt text](Documentation~/Images/Inspector-FruitExample-2.png "ScriptableObject Container")
+ 
+After adding the sub-asset it's shown in the Inspector as demonstrated in the image below.
+ 
+![alt text](Documentation~/Images/Inspector-FruitExample-3.png "ScriptableObject Container")
 
 
 ## CreateSubAssetMenuAttribute
