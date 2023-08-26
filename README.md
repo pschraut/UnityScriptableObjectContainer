@@ -45,8 +45,8 @@ using Oddworm.Framework;
 
 // Inherit a new container type from ScriptableObjectContainer.
 // The CreateAssetMenu attribute lets you create the container from the Assets/Create menu.
-[CreateAssetMenu(menuName = "FruitContainer")]
-public class FruitContainer : ScriptableObjectContainer
+[UnityEngine.CreateAssetMenu(menuName = "FruitContainer")]
+public class FruitContainer : Oddworm.Framework.ScriptableObjectContainer
 {
 }
 ```
@@ -58,8 +58,8 @@ using Oddworm.Framework;
 
 // Create a new type that adds itself to the "FruitContainer" Inspector.
 // The CreateSubAssetMenu attribute lets you add objects to the container through in the Inspector.
-[CreateSubAssetMenu(typeof(FruitContainer))]
-public class Fruit : ScriptableObject
+[Oddworm.Framework.CreateSubAssetMenu(typeof(FruitContainer))]
+public class Fruit : UnityEngine.ScriptableObject
 {
     [SerializeField] int m_HelloWorld = 123;
 }
