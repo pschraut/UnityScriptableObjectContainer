@@ -22,6 +22,7 @@ You can think of a ScriptableObjectContainer as "GameObject" and its sub-assets 
 
 # Installation
 
+Requires Unity 2021.3 and newer.
 From the Unity main menu choose Window > Package Manager.
 In the Package Manager window, choose "Add package from git URL" and insert one of the Package URL's you can find below.
 
